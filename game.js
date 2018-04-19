@@ -7,9 +7,10 @@ var positionTileSize = 20;
 // Variables defining players
 var currentPlayer;
 
-//TODO Generating the board and adding it to the DOM
+//TODO DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
+var feedbackConsole = document.getElementById("systemFeedback");
 
 // Initialize new game
 function startGame(){
@@ -23,6 +24,26 @@ function startGame(){
 	// Set current player to player 1
 	currentPlayer = player1;
 
+	// Populate DOM and update UI
+	
+	updateView();
+
+	// Clear console and prompt player for action
+	feedbackConsole.innerHTML = '';
+	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
+
+}
+
+// Write message to system feedback console
+function writeToConsole(message){
+	var feedback = "> " + message;
+	var paragraph = document.createElement("p");
+	paragraph.textContent += feedback;
+	feedbackConsole.appendChild(paragraph);
+}
+
+// Updates what the player sees on the screen to reflect game play
+function updateView(){
 	// Make the grids columns and rows
 	for (let i = 0; i < cols; i++) {
 		for (let j = 0; j < rows; j++) {
