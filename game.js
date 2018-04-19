@@ -1,3 +1,6 @@
+// Declare strict mode
+"use strict";
+
 // Constants definine game tile colours
 const _blue = '#392DFF';
 const _black = '#000000';
@@ -154,6 +157,13 @@ function fireShot(e) {
 		var row = e.target.id.substring(1,2);
 		var col = e.target.id.substring(2,3);
 		var shot = currentPlayer.targetBoard[row][col];
+		var opponent;
+
+		if (currentPlayer == player1){
+			opponent = player2;
+		} else {
+			opponent = player1;
+		}
 
 		/*
 		* Handle the possible cases
@@ -173,6 +183,18 @@ function fireShot(e) {
 			e.target.style.background = _red;
 			currentPlayer.targetBoard[row][col] = 2;
 			writeToConsole("Hit");
+
+			//Change ship's alive state to false if necessary
+			for (let i = 0; i < opponent.fleet.length; i++){
+				for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
+					if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
+						// Found ship that was hit
+						opponent.fleet[i].checkLife(currentPlayer.targetBoard);
+					}
+				}
+			}
+
+
 		} else {
 			writeToConsole("Stop wasting missiles, you already fired there...");
 		}
@@ -228,10 +250,11 @@ function validateShipPosition(row, col, ship, board){
 	return true;
 }
 
-// Places the given ship on the given game board
+// Places the given ship on the given game board and update ship's tiles array
 function placeShip(ship, board){
 	var row = ship.originRow;
 	var col = ship.originCol;
+	var tiles = ship.tiles;
 
 	switch (ship.type){
 		case 'LShip':
@@ -239,18 +262,30 @@ function placeShip(ship, board){
 			board[row + 1][col] = 1;
 			board[row + 2][col] = 1;
 			board[row + 2][col + 1] = 1;
+			tiles.push([row, col]);
+			tiles.push([row + 1, col]);
+			tiles.push([row + 2, col]);
+			tiles.push([row + 2, col + 1]);
 			break;
 		case 'SquareShip':
 			board[row][col] = 1;
 			board[row + 1][col] = 1;
 			board[row + 1][col + 1] = 1;
 			board[row][col + 1] = 1;
+			tiles.push([row, col]);
+			tiles.push([row + 1, col]);
+			tiles.push([row + 1, col + 1]);
+			tiles.push([row, col + 1]);
 			break;
 		case 'LongShip':
 			board[row][col] = 1;
 			board[row + 1][col] = 1;
 			board[row + 2][col] = 1;
 			board[row + 3][col] = 1;
+			tiles.push([row, col]);
+			tiles.push([row + 1, col]);
+			tiles.push([row + 2, col]);
+			tiles.push([row + 3, col]);
 			break;
 		default:
 			//TODO deal with invalid ship type
@@ -335,6 +370,15 @@ class Player {
 		this.targetBoard = null;
 	}
 
+	// Returns the number of ships in fleet that have been sunk
+	shipsSunk(){
+		var sunk = 0;
+		for (let i = 0; i < this.fleet.length; i++){
+			if (!this.fleet[i].alive) { sunk += 1; }
+		}
+		return sunk;
+	}
+
 	// Sets the player's target board equal to the opponent's position board
 	generateTarget(opponent){
 		this.targetBoard = [];
@@ -358,6 +402,19 @@ class Ship {
 		this.originRow = -1;
 		this.originCol = -1;
 		this.alive = true;
+		this.tiles = [];
 	}
-}
 
+	// Checks if all ship tiles are hit. Changes alive attribute accordingly.
+	checkLife(board){
+		for (let i = 0; i < this.tiles.length; i++){
+			if (board[this.tiles[i][0]][this.tiles[i][1]] == 2) {
+				this.alive = false;
+			} else {
+				this.alive = true;
+				break;
+			}
+		}
+	}
+
+}
