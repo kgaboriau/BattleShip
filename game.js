@@ -7,7 +7,7 @@ var positionTileSize = 20;
 // Variables defining players
 var currentPlayer;
 
-//TODO DOM elements
+//DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
 var feedbackConsole = document.getElementById("systemFeedback");
@@ -99,14 +99,16 @@ function fireShot(e) {
 			// Miss
 			currentPlayer.shotsFired++;
 			e.target.style.background = '#9B9FB0';
-			shot = 3;
+			currentPlayer.targetBoard[row][col] = 3;
+			writeToConsole("Miss");
 		} else if (shot == 1){
 			// Hit
 			currentPlayer.shotsFired++;
 			e.target.style.background = '#FF0000';
-			shot = 2;
+			currentPlayer.targetBoard[row][col] = 2;
+			writeToConsole("Hit");
 		} else {
-			//TODO provide message that this is an invalid square
+			writeToConsole("Stop wasting missiles, you already fired there...");
 		}
 	}
 	e.stopPropagation();

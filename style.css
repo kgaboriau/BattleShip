@@ -34,11 +34,10 @@ body {
 
 #systemFeedback {
 	overflow-y: scroll;
-	max-height: 200px;
-	min-height: 200px;
+	height: 200px;
 	background-color: #000000;
 	color: #52B50F;
-	margin: 20px;
+	padding: 10px;
 	font-family: 'Source Code Pro', monospace;
 }
 
