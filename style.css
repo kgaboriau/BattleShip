@@ -1,6 +1,7 @@
 
 body {
     margin: 60px auto;
+    padding: 10px;
     width: 80%;
     max-width: 1000px;
 }
@@ -28,20 +29,24 @@ body {
 }
 
 /* System feedback console that talks to user once they have taken a turn */
-.panel-primary {
+#consoleCol {
 	background-color: #000000;
+}
+
+#consoleCol p{
+	color: #52B50F;
+	font-family: 'Source Code Pro', monospace;
 }
 
 #systemFeedback {
 	overflow-y: scroll;
 	height: 200px;
-	background-color: #000000;
 	color: #52B50F;
 	padding: 8px;
 	font-family: 'Source Code Pro', monospace;
 }
 
-/* TODO Review this section of code */
+/****************************************** TODO Review this section of code *************************************/
 #targetboard {
 	position:relative;
 

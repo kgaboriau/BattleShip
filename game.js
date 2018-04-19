@@ -51,6 +51,9 @@ function writeToConsole(message){
 	var paragraph = document.createElement("p");
 	paragraph.textContent += feedback;
 	feedbackConsole.appendChild(paragraph);
+
+	// Set focus to bottom of scrollable console
+	feedbackConsole.scrollTop = feedbackConsole.scrollHeight;
 }
 
 // Updates what the player sees on the screen to reflect game play
