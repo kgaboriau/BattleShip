@@ -4,17 +4,28 @@
 		<title>BattleShip</title>
 		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
+
 	<body>
-	
-	<h1>Battleship</h1>	
 
-	<p>Click the board to fire at a ship. Try to sink every battleship!</p>
+		<div id='header'>
+			<h1>Battleship</h1>	
+			<h2>Current Player is: player1</h2>
+			<p>Here are some instructions</p>
+		</div>
 
-	<button onclick="startGame()">Restart</button>
+		<div id='controls'>
+			<button onclick="startGame()">Restart?</button>
+	  	</div>
 
-	<div id="gameboard">
-	</div>
-	
-	<script type="text/javascript" src="game.js"></script>
+		<div id='leftPanel'>
+			<div id="targetboard"></div>
+		</div>
+
+		<div id='rightPanel'>
+			<div id="positionboard"></div>
+	  		<p id="systemFeedback">Just for test</p>
+		</div>
+		
+		<script type="text/javascript" src="game.js"></script>
 	</body>
 </html>

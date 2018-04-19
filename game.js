@@ -8,28 +8,8 @@ var positionTileSize = 20;
 var currentPlayer;
 
 //TODO Generating the board and adding it to the DOM
-var gameBoardContainer = document.getElementById("gameboard");
-
-// make the grid columns and rows
-for (let i = 0; i < cols; i++) {
-	for (let j = 0; j < rows; j++) {
-		
-		// create a new div HTML element for each grid square and make it the right size
-		var tile = document.createElement("div");
-		gameBoardContainer.appendChild(tile);
-
-    // give each div element a unique id based on its row and column, like "s00"
-		tile.id = 't' + j + i;			
-		
-		// set each grid square's coordinates: multiples of the current row or column number
-		var topPosition = j * targetTileSize;
-		var leftPosition = i * targetTileSize;			
-		
-		// use CSS absolute positioning to place each grid square on the page
-		tile.style.top = topPosition + 'px';
-		tile.style.left = leftPosition + 'px';						
-	}
-}
+var targetBoardContainer = document.getElementById("targetboard");
+var positionBoardContainer = document.getElementById("positionboard");
 
 // Initialize new game
 function startGame(){
@@ -42,10 +22,42 @@ function startGame(){
 
 	// Set current player to player 1
 	currentPlayer = player1;
+
+	// Make the grids columns and rows
+	for (let i = 0; i < cols; i++) {
+		for (let j = 0; j < rows; j++) {
+			
+			// create a new div HTML element for each grid square and make it the right size
+			var tile = document.createElement("div");
+			var staticTile = document.createElement("div");
+			targetBoardContainer.appendChild(tile);
+			positionBoardContainer.appendChild(staticTile);
+
+	    	// give each div element a unique id based on its row and column, like "s00"
+			tile.id = 't' + j + i;	
+			if (currentPlayer.positionBoard[j][i] == 0){
+				staticTile.style.background = '#9B9FB0';
+			} else {
+				staticTile.style.background = '#000000';
+			}
+			
+			// set each grid square's coordinates: multiples of the current row or column number
+			var topTarget = j * targetTileSize;
+			var leftTarget = i * targetTileSize;	
+			var topPosition	= j * positionTileSize;
+			var leftPosition = i * positionTileSize;
+			
+			// use CSS absolute positioning to place each grid square on the page
+			tile.style.top = topTarget + 'px';
+			tile.style.left = leftTarget + 'px';	
+			staticTile.style.top = topPosition + 'px';
+			staticTile.style.left = leftPosition + 'px';					
+		}
+	}
 }
 
 // Add event listener for shot fired
-gameBoardContainer.addEventListener("click", fireShot, false);
+targetBoardContainer.addEventListener("click", fireShot, false);
 
 // Handle player's move (shot fired on targetBoard)
 function fireShot(e) {
@@ -54,7 +66,7 @@ function fireShot(e) {
         // Extract row and column # from the HTML element's id
 		var row = e.target.id.substring(1,2);
 		var col = e.target.id.substring(2,3);
-		var shot = currentPlayer.positionBoard[row][col];
+		var shot = currentPlayer.targetBoard[row][col];
 
 		/*
 		* Handle the possible cases
@@ -200,7 +212,6 @@ function generateBoard(ships){
 		// Update game board to reflect valid ship placements
 		ships[i].originRow = row;
 		ships[i].originCol = col;
-		console.log("Ship origin at: " + row + ", " + col);
 		placeShip(ships[i], gameBoard);
 		validatePlacement = false;
 	}
@@ -237,7 +248,11 @@ class Player {
 
 	// Sets the player's target board equal to the opponent's position board
 	generateTarget(opponent){
-		this.targetBoard = opponent.positionBoard;
+		this.targetBoard = [];
+
+		for (let i = 0; i < opponent.positionBoard.length; i++){
+			this.targetBoard[i] = opponent.positionBoard[i].slice();
+		}
 	}
 }
 
