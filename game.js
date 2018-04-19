@@ -1,3 +1,9 @@
+// Constants definine game tile colours
+const _blue = '#392DFF';
+const _black = '#000000';
+const _red = '#FF0000';
+const _grey = '#9B9FB0';
+
 // Variables to define the game board
 var rows = 8;
 var cols = 8;
@@ -6,6 +12,8 @@ var positionTileSize = 20;
 
 // Variables defining players
 var currentPlayer;
+var player1;
+var player2;
 
 //DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
@@ -14,8 +22,8 @@ var feedbackConsole = document.getElementById("systemFeedback");
 
 // Initialize new game
 function startGame(){
-	let player1 = new Player();
-	let player2 = new Player();
+	player1 = new Player();
+	player2 = new Player();
 
 	// Set players' targetBoard layouts equal to opponent's positionBoard
 	player1.generateTarget(player2);
@@ -24,9 +32,8 @@ function startGame(){
 	// Set current player to player 1
 	currentPlayer = player1;
 
-	// Populate DOM and update UI
-	
-	updateView();
+	// Populate DOM for game boards
+	buildBoardContainers();
 
 	// Clear console and prompt player for action
 	feedbackConsole.innerHTML = '';
@@ -43,7 +50,7 @@ function writeToConsole(message){
 }
 
 // Updates what the player sees on the screen to reflect game play
-function updateView(){
+function buildBoardContainers(){
 	// Make the grids columns and rows
 	for (let i = 0; i < cols; i++) {
 		for (let j = 0; j < rows; j++) {
@@ -56,10 +63,11 @@ function updateView(){
 
 	    	// give each div element a unique id based on its row and column, like "s00"
 			tile.id = 't' + j + i;	
+			staticTile.id = 's' + j + i;
 			if (currentPlayer.positionBoard[j][i] == 0){
-				staticTile.style.background = '#9B9FB0';
+				staticTile.style.background = _grey;
 			} else {
-				staticTile.style.background = '#000000';
+				staticTile.style.background = _black;
 			}
 			
 			// set each grid square's coordinates: multiples of the current row or column number
@@ -75,6 +83,64 @@ function updateView(){
 			staticTile.style.left = leftPosition + 'px';					
 		}
 	}
+}
+
+// When player is done their turn and clicks the button to allow the next plater to start
+function nextTurn(){
+	if (currentPlayer == player1){
+		currentPlayer = player2;
+	} else {
+		currentPlayer = player1;
+	}
+
+	// Clear console and prompt player for action
+	feedbackConsole.innerHTML = '';
+	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
+
+	updateView();
+}
+
+/*
+* This function takes care of updateing the screen depending on the game state.
+* It will need to be called when either the current player is changed, the game has ended, 
+* or a player has started their turn.
+*/
+function updateView(){
+	//TODO will need to be updated as game is enhanced
+
+	
+	// Iterate over two game boards and update their appearance
+	var children = positionBoardContainer.childNodes;
+	var childID = null;
+	var row = null;
+	var col = null;
+	for (let i = 0; i < children.length; i++){
+		childID = children[i].getAttribute('id');
+		row = childID.substring(1,2);
+		col = childID.substring(2, 3);
+
+		if (currentPlayer.positionBoard[row][col] == 1){
+			children[i].style.background = _black;
+		} else {
+			children[i].style.background = _grey;
+		}
+	}
+
+	children = targetBoardContainer.childNodes;
+	for (let i = 0; i < children.length; i++){
+		childID = children[i].getAttribute('id');
+		row = childID.substring(1,2);
+		col = childID.substring(2, 3);
+
+		if (currentPlayer.targetBoard[row][col] == 2){
+			children[i].style.background = _red;
+		} else if (currentPlayer.targetBoard[row][col] == 3) {
+			children[i].style.background = _grey;
+		} else {
+			children[i].style.background = _blue;
+		}
+	}
+
 }
 
 // Add event listener for shot fired
@@ -98,13 +164,13 @@ function fireShot(e) {
 		if (shot == 0) {
 			// Miss
 			currentPlayer.shotsFired++;
-			e.target.style.background = '#9B9FB0';
+			e.target.style.background = _grey;
 			currentPlayer.targetBoard[row][col] = 3;
 			writeToConsole("Miss");
 		} else if (shot == 1){
 			// Hit
 			currentPlayer.shotsFired++;
-			e.target.style.background = '#FF0000';
+			e.target.style.background = _red;
 			currentPlayer.targetBoard[row][col] = 2;
 			writeToConsole("Hit");
 		} else {
