@@ -11,7 +11,7 @@
 
 		<div id='header'>
 			<h1>Battleship</h1>	
-			<h2>Current Player is: player1</h2>
+			<h2 id="displayPlayer" ></h2>
 			<p>Here are some instructions</p>
 		</div>
 
@@ -32,9 +32,10 @@
 
 		<div id='controls'>
 			<button type="button" class="btn btn-primary" onclick="startGame()">Restart?</button>
-			<button type="button" class="btn btn-primary" onclick="nextTurn()">Start Player 2's Turn</button>
+			<button type="button" class="btn btn-primary" id="nextPlayer" onclick="nextTurn()">End Turn</button>
 	  	</div>
 		
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="game.js"></script>
 	</body>
 </html>

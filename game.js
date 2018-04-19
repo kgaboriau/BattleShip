@@ -35,8 +35,9 @@ function startGame(){
 	// Set current player to player 1
 	currentPlayer = player1;
 
-	// Populate DOM for game boards
+	// Populate DOM for game boards and update view
 	buildBoardContainers();
+	updateView();
 
 	// Clear console and prompt player for action
 	feedbackConsole.innerHTML = '';
@@ -109,8 +110,12 @@ function nextTurn(){
 * or a player has started their turn.
 */
 function updateView(){
-	//TODO will need to be updated as game is enhanced
-
+	// Change current player on display using JQuery
+	if (currentPlayer == player1){
+		$('#displayPlayer').text('Current Player is: Player 1');
+	} else {
+		$('#displayPlayer').text('Current Player is: Player 2');
+	}
 	
 	// Iterate over two game boards and update their appearance
 	var children = positionBoardContainer.childNodes;
