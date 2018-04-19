@@ -198,6 +198,10 @@ function fireShot(e) {
 					if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
 						// Found ship that was hit
 						opponent.fleet[i].checkLife(currentPlayer.targetBoard);
+						if (!opponent.fleet[i].alive) {
+							writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
+								+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
+						}
 					}
 				}
 			}
@@ -360,10 +364,10 @@ function generateBoard(ships){
 */
 function generateFleet(){
 	var fleet = [
-	new Ship('LShip'), 
-	new Ship('SquareShip'),
-	new Ship('LongShip'),
-	new Ship('LongShip')
+	new Ship('LShip', "Elle"), 
+	new Ship('SquareShip', "Quadratum"),
+	new Ship('LongShip', "Thing One"),
+	new Ship('LongShip', "Thing Two")
 	];
 
 	return fleet;
@@ -399,7 +403,7 @@ class Player {
 
 // Class to model ship
 class Ship {
-	constructor(type){
+	constructor(type, name){
 		/*
 		* Ship can be one of three types:
 		* 1. LShip
@@ -411,6 +415,7 @@ class Ship {
 		this.originCol = -1;
 		this.alive = true;
 		this.tiles = [];
+		this.name = name;
 	}
 
 	// Checks if all ship tiles are hit. Changes alive attribute accordingly.
