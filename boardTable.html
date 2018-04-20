@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>BattleShip Board</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+
+	<!-- On page load run startGame function --> 
+	<body onload="startGame()">
+
+		<!-- Header display's basic game information --> 
+		<div id='header'>
+			<h1>Battleship</h1>	
+			<h2 id="displayPlayer" ></h2>
+		</div>
+
+		<!-- Container has all of the game pieces -->
+		<div class="container">
+		  <div class="row">
+		  	<div class="col">
+		  		<div id="targetboard"></div>
+		  	</div>
+		  	<div class="col" id="consoleCol">
+		  		<p>Here are your ship placements:</p>
+		  		<div id="positionboard"></div>
+		  		<div class="panel panel-primary">
+					<div id="systemFeedback"></div>
+				</div>
+		  	</div>
+		  </div>
+
+		</div>
+
+		<!-- Controls stores the buttons available to the player -->
+		<div id='controls'>
+			<button type="button" class="btn btn-primary" onclick="startGame()">Restart?</button>
+			<button type="button" class="btn btn-primary" id="nextPlayer" onclick="nextTurn()">End Turn</button>
+	  	</div>
+		
+		<!-- Import JQuery and game script -->
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="game.js"></script>
+	</body>
+</html>
