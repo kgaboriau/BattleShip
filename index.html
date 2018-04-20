@@ -9,11 +9,13 @@
 
 	<body>
 
+		<!-- Header display's basic game information --> 
 		<div id='header'>
 			<h1>Battleship</h1>	
 			<h2 id="displayPlayer" ></h2>
 		</div>
 
+		<!-- Container has all of the game pieces -->
 		<div class="container">
 		  <div class="row">
 		  	<div class="col">
@@ -27,13 +29,16 @@
 				</div>
 		  	</div>
 		  </div>
+
 		</div>
 
+		<!-- Controls stores the buttons available to the player -->
 		<div id='controls'>
 			<button type="button" class="btn btn-primary" onclick="startGame()">Restart?</button>
 			<button type="button" class="btn btn-primary" id="nextPlayer" onclick="nextTurn()">End Turn</button>
 	  	</div>
 		
+		<!-- Import JQuery and game script -->
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="game.js"></script>
 	</body>
