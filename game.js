@@ -13,20 +13,24 @@ var cols = 8;
 var targetTileSize = 50;
 var positionTileSize = 20;
 
-// Variables defining players
+// Variables defining players and game state
 var currentPlayer;
 var player1;
 var player2;
+var gameOver;
 
 //DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
 var feedbackConsole = document.getElementById("systemFeedback");
+var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
 // Initialize new game
 function startGame(){
 	player1 = new Player();
 	player2 = new Player();
+	gameOver = false;
+	passToNextPlayerBtn.disabled = true;
 
 	// Set players' targetBoard layouts equal to opponent's positionBoard
 	player1.generateTarget(player2);
@@ -100,6 +104,8 @@ function nextTurn(){
 		currentPlayer = player1;
 	}
 
+	passToNextPlayerBtn.disabled = true;
+
 	// Clear console and prompt player for action
 	feedbackConsole.innerHTML = '';
 	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
@@ -154,62 +160,83 @@ function updateView(){
 
 }
 
+// Checks if game has ended and updates gameOver variable accordingly
+function checkGameOver(opponent){
+	if (opponent.shipsSunk() == opponent.fleet.length) {
+		gameOver = true;
+	} else {
+		gameOver = false;
+	}
+}
+
 // Add event listener for shot fired
 targetBoardContainer.addEventListener("click", fireShot, false);
 
 // Handle player's move (shot fired on targetBoard)
 function fireShot(e) {
-	// If item clicked (e.target) is not the parent element on which the event listener was set (e.currentTarget)
-	if (e.target !== e.currentTarget) {
-        // Extract row and column # from the HTML element's id
-		var row = e.target.id.substring(1,2);
-		var col = e.target.id.substring(2,3);
-		var shot = currentPlayer.targetBoard[row][col];
-		var opponent;
+	// Validate that the currentPlayer is allowed to shoot and has not already executed a valid shot
+	if (passToNextPlayerBtn.disabled == true){
 
-		if (currentPlayer == player1){
-			opponent = player2;
-		} else {
-			opponent = player1;
-		}
+		// If item clicked (e.target) is not the parent element on which the event listener was set (e.currentTarget)
+		if (e.target !== e.currentTarget) {
+	        // Extract row and column # from the HTML element's id
+			var row = e.target.id.substring(1,2);
+			var col = e.target.id.substring(2,3);
+			var shot = currentPlayer.targetBoard[row][col];
+			var opponent;
 
-		/*
-		* Handle the possible cases
-		* 1. User clicked on square with no ship hidden: square turns grey
-		* 2. User clicked on square with ship hidden: square turns red
-		* 3. User clicked on square already shot at: do not change turns
-		*/
-		if (shot == 0) {
-			// Miss
-			currentPlayer.shotsFired++;
-			e.target.style.background = _grey;
-			currentPlayer.targetBoard[row][col] = 3;
-			writeToConsole("Miss");
-		} else if (shot == 1){
-			// Hit
-			currentPlayer.shotsFired++;
-			e.target.style.background = _red;
-			currentPlayer.targetBoard[row][col] = 2;
-			writeToConsole("Hit");
+			if (currentPlayer == player1){
+				opponent = player2;
+			} else {
+				opponent = player1;
+			}
 
-			//Change ship's alive state to false if necessary
-			for (let i = 0; i < opponent.fleet.length; i++){
-				for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
-					if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
-						// Found ship that was hit
-						opponent.fleet[i].checkLife(currentPlayer.targetBoard);
-						if (!opponent.fleet[i].alive) {
-							writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
-								+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
+			/*
+			* Handle the possible cases
+			* 1. User clicked on square with no ship hidden: square turns grey
+			* 2. User clicked on square with ship hidden: square turns red
+			* 3. User clicked on square already shot at: do not change turns
+			*/
+			if (shot == 0) {
+				// Miss
+				currentPlayer.shotsFired++;
+				e.target.style.background = _grey;
+				currentPlayer.targetBoard[row][col] = 3;
+				writeToConsole("Miss");
+				passToNextPlayerBtn.disabled = false;
+			} else if (shot == 1){
+				// Hit
+				currentPlayer.shotsFired++;
+				e.target.style.background = _red;
+				currentPlayer.targetBoard[row][col] = 2;
+				writeToConsole("Hit");
+				passToNextPlayerBtn.disabled = false;
+
+				//Change ship's alive state to false if necessary
+				for (let i = 0; i < opponent.fleet.length; i++){
+					for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
+						if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
+							// Found ship that was hit
+							opponent.fleet[i].checkLife(currentPlayer.targetBoard);
+							if (!opponent.fleet[i].alive) {
+								writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
+									+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
+							}
 						}
 					}
 				}
+
+				//TODO (will need to change what happens when game is over) Check if game is over 
+				checkGameOver(opponent);
+				if (gameOver) { writeToConsole("GAME OVER");}
+
+			} else {
+				writeToConsole("Stop wasting missiles, you already fired there...");
 			}
-
-
-		} else {
-			writeToConsole("Stop wasting missiles, you already fired there...");
 		}
+	} else {
+		// Current Player has already executed a valid shot and cannot shoot again
+		writeToConsole("You have already fired. Pass the game to your opponent by clicking the End Turn button.");
 	}
 	e.stopPropagation();
 }
