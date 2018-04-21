@@ -24,6 +24,8 @@ var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
 var feedbackConsole = document.getElementById("systemFeedback");
 var passToNextPlayerBtn = document.getElementById("nextPlayer");
+var cover = document.getElementById("cover");
+var coverControls = document.getElementById("coverControls");
 
 // Initialize new game
 function startGame(){
@@ -96,12 +98,28 @@ function buildBoardContainers(){
 	}
 }
 
+// Changes screen visibility when players are changing turn (summons cover)
+function boardToggle(){
+	if (cover.style.display == 'none'){
+		// Show game board
+		cover.style.display = 'block';
+		coverControls.style.display = 'none';
+	} else {
+		// Hide game board
+		cover.style.display = 'none';
+		coverControls.style.display = 'block';
+	}
+	
+}
+
 // When player is done their turn and clicks the button to allow the next plater to start
 function nextTurn(){
 	if (currentPlayer == player1){
 		currentPlayer = player2;
+		$('#playerSummon').text('Player 2 ready?');
 	} else {
 		currentPlayer = player1;
+		$('#playerSummon').text('Player 1 ready?');
 	}
 
 	passToNextPlayerBtn.disabled = true;
@@ -109,6 +127,9 @@ function nextTurn(){
 	// Clear console and prompt player for action
 	feedbackConsole.innerHTML = '';
 	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
+
+	// Cover board until next player is ready
+	boardToggle();
 
 	updateView();
 }

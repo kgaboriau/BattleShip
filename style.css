@@ -6,6 +6,11 @@ body {
     max-width: 1000px;
 }
 
+/* cover features for changing turn */
+#coverControls {
+	display: none;
+}
+
 /* min dimensions required for dynamic allocation of game boards */
 .col {
 	min-width: 420px;

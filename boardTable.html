@@ -10,33 +10,44 @@
 	<!-- On page load run startGame function --> 
 	<body onload="startGame()">
 
-		<!-- Header display's basic game information --> 
-		<div id='header'>
-			<h1>Battleship</h1>	
-			<h2 id="displayPlayer" ></h2>
-		</div>
+	<!-- Cover is used to hide game play as player's are changing turns --> 
+		<div id="cover" >
 
-		<!-- Container has all of the game pieces -->
-		<div class="container">
-		  <div class="row">
-		  	<div class="col">
-		  		<div id="targetboard"></div>
+			<!-- Header display's basic game information --> 
+			<div id='header'>
+				<h1>Battleship</h1>	
+				<h2 id="displayPlayer" ></h2>
+			</div>
+
+			<!-- Container has all of the game pieces -->
+			<div class="container">
+			  <div class="row">
+			  	<div class="col">
+			  		<div id="targetboard"></div>
+			  	</div>
+			  	<div class="col" id="consoleCol">
+			  		<p>Here are your ship placements:</p>
+			  		<div id="positionboard"></div>
+			  		<div class="panel panel-primary">
+						<div id="systemFeedback"></div>
+					</div>
+			  	</div>
+			  </div>
+
+			</div>
+
+			<!-- Controls stores the buttons available to the player -->
+			<div id='controls'>
+				<button type="button" class="btn btn-primary" onclick="startGame()">Restart?</button>
+				<button type="button" class="btn btn-primary" id="nextPlayer" onclick="nextTurn()">End Turn</button>
 		  	</div>
-		  	<div class="col" id="consoleCol">
-		  		<p>Here are your ship placements:</p>
-		  		<div id="positionboard"></div>
-		  		<div class="panel panel-primary">
-					<div id="systemFeedback"></div>
-				</div>
-		  	</div>
-		  </div>
 
-		</div>
+	  	</div>
 
-		<!-- Controls stores the buttons available to the player -->
-		<div id='controls'>
-			<button type="button" class="btn btn-primary" onclick="startGame()">Restart?</button>
-			<button type="button" class="btn btn-primary" id="nextPlayer" onclick="nextTurn()">End Turn</button>
+	  	<!-- Controls for player to show game board when their turn starts --> 
+	  	<div id="coverControls">
+	  		<h2 id="playerSummon"></h2>
+	  		<button type="button" class="btn btn-primary" onclick="boardToggle()">Start Turn</button>
 	  	</div>
 		
 		<!-- Import JQuery and game script -->
