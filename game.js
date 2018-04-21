@@ -42,7 +42,6 @@ function startGame(){
 	// Populate DOM for game boards and update view
 	buildBoardContainers();
 	updateView();
-	boardToggle();
 
 	// Clear console and prompt player for action
 	feedbackConsole.innerHTML = '';
@@ -157,12 +156,10 @@ function boardToggle(){
 		// Player has handed turn over
 		if (cover.style.display == 'none'){
 			// Show game board
-			console.log("im in the if");
 			cover.style.display = 'block';
 			coverControls.style.display = 'none';
 		} else {
 			// Hide game board
-			console.log("im in the else");
 			cover.style.display = 'none';
 			coverControls.style.display = 'block';
 			restartControl.style.display = 'none';
