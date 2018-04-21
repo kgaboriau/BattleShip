@@ -11,6 +11,14 @@ body {
 	display: none;
 }
 
+#stats {
+	display: none;
+}
+
+#cover {
+	display: none;
+}
+
 /* min dimensions required for dynamic allocation of game boards */
 .col {
 	min-width: 420px;

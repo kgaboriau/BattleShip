@@ -24,13 +24,11 @@ var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
 var feedbackConsole = document.getElementById("systemFeedback");
 var passToNextPlayerBtn = document.getElementById("nextPlayer");
-var cover = document.getElementById("cover");
-var coverControls = document.getElementById("coverControls");
 
 // Initialize new game
 function startGame(){
-	player1 = new Player();
-	player2 = new Player();
+	player1 = new Player('Player 1');
+	player2 = new Player('Player 2');
 	gameOver = false;
 	passToNextPlayerBtn.disabled = true;
 
@@ -44,6 +42,7 @@ function startGame(){
 	// Populate DOM for game boards and update view
 	buildBoardContainers();
 	updateView();
+	boardToggle();
 
 	// Clear console and prompt player for action
 	feedbackConsole.innerHTML = '';
@@ -98,17 +97,78 @@ function buildBoardContainers(){
 	}
 }
 
-// Changes screen visibility when players are changing turn (summons cover)
+// Updates the DOM to display game over stats
+function updateStats(stats){
+	// Clear content
+	while (stats.firstChild) {
+    	stats.removeChild(stats.firstChild);
+	}
+
+	// Write new content
+	var shots = document.createElement("p");
+	var kills = document.createElement("p");
+
+	stats.appendChild(shots);
+	stats.appendChild(kills);
+
+	shots.textContent = "Shots Fired:\n" + player1.name + ": " + player1.shotsFired + "\n" +
+	player2.name + ": " + player2.shotsFired;
+	kills.textContent = "Ships Sunk:\n" + player1.name + ": " + player2.shipsSunk() + "\n" + 
+	player2.name + ": " + player1.shipsSunk();
+
+}
+
+// Changes screen visibility to hide/show board/cover screens
 function boardToggle(){
-	if (cover.style.display == 'none'){
-		// Show game board
-		cover.style.display = 'block';
-		coverControls.style.display = 'none';
-	} else {
-		// Hide game board
+	// DOM optional controls
+	var cover = document.getElementById("cover");
+	var coverControls = document.getElementById("coverControls");
+	var restartControl = document.getElementById('restartControl');
+	var turnControl = document.getElementById('turnControl');
+	var stats = document.getElementById("stats");
+
+	// If game is over show game end screen else change of turn
+	if (gameOver){
+		// Hide game board and show end stats
 		cover.style.display = 'none';
 		coverControls.style.display = 'block';
+		restartControl.style.display = 'block';
+		turnControl.style.display = 'none';
+		stats.style.display = 'block';
+
+		// Update stats to display
+		updateStats(stats);
+
+		// Tell player's who won
+		var winner;
+		if(player2.shipsSunk() == player2.fleet.length){
+			// Player 1 wins
+			winner = player1;
+
+		} else {
+			// Player 2 wins
+			winner = player2;
+		}
+		$('#playerSummon').text(winner.name + ' won!');
+
+	} else {
+		stats.style.display = 'none';
+
+		// Player has handed turn over
+		if (cover.style.display == 'none'){
+			// Show game board
+			console.log("im in the if");
+			cover.style.display = 'block';
+			coverControls.style.display = 'none';
+		} else {
+			// Hide game board
+			console.log("im in the else");
+			cover.style.display = 'none';
+			coverControls.style.display = 'block';
+			restartControl.style.display = 'none';
+		}
 	}
+	
 	
 }
 
@@ -116,11 +176,10 @@ function boardToggle(){
 function nextTurn(){
 	if (currentPlayer == player1){
 		currentPlayer = player2;
-		$('#playerSummon').text('Player 2 ready?');
 	} else {
 		currentPlayer = player1;
-		$('#playerSummon').text('Player 1 ready?');
 	}
+	$('#playerSummon').text(currentPlayer.name + ' ready?');
 
 	passToNextPlayerBtn.disabled = true;
 
@@ -141,11 +200,7 @@ function nextTurn(){
 */
 function updateView(){
 	// Change current player on display using JQuery
-	if (currentPlayer == player1){
-		$('#displayPlayer').text('Current Player is: Player 1');
-	} else {
-		$('#displayPlayer').text('Current Player is: Player 2');
-	}
+	$('#displayPlayer').text('Current Player is: ' + currentPlayer.name);
 	
 	// Iterate over two game boards and update their appearance
 	var children = positionBoardContainer.childNodes;
@@ -247,9 +302,9 @@ function fireShot(e) {
 					}
 				}
 
-				//TODO (will need to change what happens when game is over) Check if game is over 
+				// Check if game has ended. If it has call function to show end game. 
 				checkGameOver(opponent);
-				if (gameOver) { writeToConsole("GAME OVER");}
+				if (gameOver) { boardToggle(); }
 
 			} else {
 				writeToConsole("Stop wasting missiles, you already fired there...");
@@ -423,11 +478,12 @@ function generateFleet(){
 
 // Class to model player
 class Player {
-	constructor(){
+	constructor(name){
 		this.fleet = generateFleet();
 		this.positionBoard = generateBoard(this.fleet);
 		this.shotsFired = 0;
 		this.targetBoard = null;
+		this.name = name;
 	}
 
 	// Returns the number of ships in fleet that have been sunk
