@@ -14,10 +14,7 @@ var targetTileSize = 50;
 var positionTileSize = 20;
 
 // Variables defining players and game state
-var currentPlayer;
-var player1;
-var player2;
-var gameOver;
+var game;
 
 //DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
@@ -27,17 +24,12 @@ var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
 // Initialize new game
 function startGame(){
-	player1 = new Player('Player 1');
-	player2 = new Player('Player 2');
-	gameOver = false;
+	game = new Game();
 	passToNextPlayerBtn.disabled = true;
 
 	// Set players' targetBoard layouts equal to opponent's positionBoard
-	player1.generateTarget(player2);
-	player2.generateTarget(player1);
-
-	// Set current player to player 1
-	currentPlayer = player1;
+	game.player1.generateTarget(game.player2);
+	game.player2.generateTarget(game.player1);
 
 	// Populate DOM for game boards and update view
 	buildBoardContainers();
@@ -75,7 +67,7 @@ function buildBoardContainers(){
 	    	// give each div element a unique id based on its row and column, like "s00"
 			tile.id = 't' + j + i;	
 			staticTile.id = 's' + j + i;
-			if (currentPlayer.positionBoard[j][i] == 0){
+			if (game.currentPlayer.positionBoard[j][i] == 0){
 				staticTile.style.background = _grey;
 			} else {
 				staticTile.style.background = _black;
@@ -110,10 +102,10 @@ function updateStats(stats){
 	stats.appendChild(shots);
 	stats.appendChild(kills);
 
-	shots.textContent = "Shots Fired:\n" + player1.name + ": " + player1.shotsFired + "\n" +
-	player2.name + ": " + player2.shotsFired;
-	kills.textContent = "Ships Sunk:\n" + player1.name + ": " + player2.shipsSunk() + "\n" + 
-	player2.name + ": " + player1.shipsSunk();
+	shots.textContent = "Shots Fired:\n" + game.player1.name + ": " + game.player1.shotsFired + "\n" +
+	game.player2.name + ": " + game.player2.shotsFired;
+	kills.textContent = "Ships Sunk:\n" + game.player1.name + ": " + game.player2.shipsSunk() + "\n" + 
+	game.player2.name + ": " + game.player1.shipsSunk();
 
 }
 
@@ -127,7 +119,7 @@ function boardToggle(){
 	var stats = document.getElementById("stats");
 
 	// If game is over show game end screen else change of turn
-	if (gameOver){
+	if (game.gameOver){
 		// Hide game board and show end stats
 		cover.style.display = 'none';
 		coverControls.style.display = 'block';
@@ -140,13 +132,13 @@ function boardToggle(){
 
 		// Tell player's who won
 		var winner;
-		if(player2.shipsSunk() == player2.fleet.length){
+		if(game.player2.shipsSunk() == game.player2.fleet.length){
 			// Player 1 wins
-			winner = player1;
+			winner = game.player1;
 
 		} else {
 			// Player 2 wins
-			winner = player2;
+			winner = game.player2;
 		}
 		$('#playerSummon').text(winner.name + ' won!');
 
@@ -171,12 +163,12 @@ function boardToggle(){
 
 // When player is done their turn and clicks the button to allow the next plater to start
 function nextTurn(){
-	if (currentPlayer == player1){
-		currentPlayer = player2;
+	if (game.currentPlayer == game.player1){
+		game.currentPlayer = game.player2;
 	} else {
-		currentPlayer = player1;
+		game.currentPlayer = game.player1;
 	}
-	$('#playerSummon').text(currentPlayer.name + ' ready?');
+	$('#playerSummon').text(game.currentPlayer.name + ' ready?');
 
 	passToNextPlayerBtn.disabled = true;
 
@@ -197,7 +189,7 @@ function nextTurn(){
 */
 function updateView(){
 	// Change current player on display using JQuery
-	$('#displayPlayer').text('Current Player is: ' + currentPlayer.name);
+	$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
 	
 	// Iterate over two game boards and update their appearance
 	var children = positionBoardContainer.childNodes;
@@ -209,7 +201,7 @@ function updateView(){
 		row = childID.substring(1,2);
 		col = childID.substring(2, 3);
 
-		if (currentPlayer.positionBoard[row][col] == 1){
+		if (game.currentPlayer.positionBoard[row][col] == 1){
 			children[i].style.background = _black;
 		} else {
 			children[i].style.background = _grey;
@@ -222,24 +214,15 @@ function updateView(){
 		row = childID.substring(1,2);
 		col = childID.substring(2, 3);
 
-		if (currentPlayer.targetBoard[row][col] == 2){
+		if (game.currentPlayer.targetBoard[row][col] == 2){
 			children[i].style.background = _red;
-		} else if (currentPlayer.targetBoard[row][col] == 3) {
+		} else if (game.currentPlayer.targetBoard[row][col] == 3) {
 			children[i].style.background = _grey;
 		} else {
 			children[i].style.background = _blue;
 		}
 	}
 
-}
-
-// Checks if game has ended and updates gameOver variable accordingly
-function checkGameOver(opponent){
-	if (opponent.shipsSunk() == opponent.fleet.length) {
-		gameOver = true;
-	} else {
-		gameOver = false;
-	}
 }
 
 // Add event listener for shot fired
@@ -255,13 +238,13 @@ function fireShot(e) {
 	        // Extract row and column # from the HTML element's id
 			var row = e.target.id.substring(1,2);
 			var col = e.target.id.substring(2,3);
-			var shot = currentPlayer.targetBoard[row][col];
+			var shot = game.currentPlayer.targetBoard[row][col];
 			var opponent;
 
-			if (currentPlayer == player1){
-				opponent = player2;
+			if (game.currentPlayer == game.player1){
+				opponent = game.player2;
 			} else {
-				opponent = player1;
+				opponent = game.player1;
 			}
 
 			/*
@@ -272,16 +255,16 @@ function fireShot(e) {
 			*/
 			if (shot == 0) {
 				// Miss
-				currentPlayer.shotsFired++;
+				game.currentPlayer.shotsFired++;
 				e.target.style.background = _grey;
-				currentPlayer.targetBoard[row][col] = 3;
+				game.currentPlayer.targetBoard[row][col] = 3;
 				writeToConsole("Miss");
 				passToNextPlayerBtn.disabled = false;
 			} else if (shot == 1){
 				// Hit
-				currentPlayer.shotsFired++;
+				game.currentPlayer.shotsFired++;
 				e.target.style.background = _red;
-				currentPlayer.targetBoard[row][col] = 2;
+				game.currentPlayer.targetBoard[row][col] = 2;
 				writeToConsole("Hit");
 				passToNextPlayerBtn.disabled = false;
 
@@ -290,7 +273,7 @@ function fireShot(e) {
 					for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
 						if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
 							// Found ship that was hit
-							opponent.fleet[i].checkLife(currentPlayer.targetBoard);
+							opponent.fleet[i].checkLife(game.currentPlayer.targetBoard);
 							if (!opponent.fleet[i].alive) {
 								writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
 									+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
@@ -300,8 +283,7 @@ function fireShot(e) {
 				}
 
 				// Check if game has ended. If it has call function to show end game. 
-				checkGameOver(opponent);
-				if (gameOver) { boardToggle(); }
+				if (game.checkGameOver()) { boardToggle(); }
 
 			} else {
 				writeToConsole("Stop wasting missiles, you already fired there...");
@@ -312,6 +294,72 @@ function fireShot(e) {
 		writeToConsole("You have already fired. Pass the game to your opponent by clicking the End Turn button.");
 	}
 	e.stopPropagation();
+}
+
+/************** Functions used for game build **************/
+
+/*
+* Creates ships for player. Currently game provides four ships in the fleet:
+* one L shaped ship with height 3 and width 2 (LShip)
+* one square ship with height 2 and width 2 (SquareShip)
+* two long ships with height 4 and width 1 (LongShip)
+*/
+function generateFleet(){
+	var fleet = [
+	new Ship('LShip', "Elle"), 
+	new Ship('SquareShip', "Quadratum"),
+	new Ship('LongShip', "Thing One"),
+	new Ship('LongShip', "Thing Two")
+	];
+
+	return fleet;
+}
+
+/*
+* Create a new position board. The game board will be a two dimensional integer array. 
+* The value of each element in the nested array will represent the state of the tile
+* on the game board.
+* 0 = tile not yet fired at
+* 1 = part of a ship not yet hit
+* 2 = part of a ship already hit
+* 3 = a missed shot
+*/
+function generateBoard(ships){
+	// Create empty board represented by a two dimensional array
+	var gameBoard = [
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0]
+	];
+
+	// Iterate over all ships to place on board
+	var validatePlacement = false;
+	var row = 0;
+	var col = 0;
+
+	for (let i =0; i < ships.length; i++){
+		// Randomly generate valid placement for ship and set ship position
+		do {
+			row = getRandomInt(gameBoard.length);
+			col = getRandomInt(gameBoard[i].length);
+			validatePlacement = validateShipPosition(row, col, ships[i], gameBoard);
+		} while (!validatePlacement)
+
+		validatePlacement = false;
+	}
+
+
+	return gameBoard;
+}
+
+// Generates a random integer given a maximum value
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
 }
 
 /* Checks that the given position is open on the given board. First
@@ -355,17 +403,18 @@ function validateShipPosition(row, col, ship, board){
 			//TODO deal with invalid ship type
 	}
 
+	// Validation
 	for (let i = 0; i < shipTiles.length; i++){
 		if (shipTiles[i] != 0) { return false; }
 	}
 
+	// Placement is valid, place ship on board
+	placeShip(row, col, ship, board);
 	return true;
 }
 
 // Places the given ship on the given game board and update ship's tiles array
-function placeShip(ship, board){
-	var row = ship.originRow;
-	var col = ship.originCol;
+function placeShip(row, col, ship, board){
 	var tiles = ship.tiles;
 
 	switch (ship.type){
@@ -404,73 +453,25 @@ function placeShip(ship, board){
 	}
 }
 
-// Generates a random integer given a maximum value
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
+/************** These are the classes to model the game **************/
 
-/*
-* Create a new position board. The game board will be a two dimensional integer array. 
-* The value of each element in the nested array will represent the state of the tile
-* on the game board.
-* 0 = tile not yet fired at
-* 1 = part of a ship not yet hit
-* 2 = part of a ship already hit
-* 3 = a missed shot
-*/
-function generateBoard(ships){
-	// Create empty board represented by a two dimensional array
-	var gameBoard = [
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0]
-	];
-
-	// Iterate over all ships to place on board
-	var validatePlacement = false;
-	var row = 0;
-	var col = 0;
-
-	for (let i =0; i < ships.length; i++){
-		// Randomly generate valid placement for ship and set ship position
-		do {
-			row = getRandomInt(gameBoard.length);
-			col = getRandomInt(gameBoard[i].length);
-			validatePlacement = validateShipPosition(row, col, ships[i], gameBoard);
-		} while (!validatePlacement)
-
-
-		// Update game board to reflect valid ship placements
-		ships[i].originRow = row;
-		ships[i].originCol = col;
-		placeShip(ships[i], gameBoard);
-		validatePlacement = false;
+// Class to model game instance (used for save state)
+class Game {
+	constructor(){
+		this.player1 = new Player('Player 1');
+		this.player2 = new Player('Player 2');
+		this.currentPlayer = this.player1;
+		this.gameOver = false; 
 	}
 
+	checkGameOver(){
+		if ((this.player1.shipsSunk() == this.player1.fleet.length) || (this.player2.shipsSunk() == this.player2.fleet.length)) {
+			this.gameOver = true;
+		} 
 
-	return gameBoard;
-}
+		return this.gameOver;
+	}
 
-/*
-* Creates ships for player. Currently game provides four ships in the fleet:
-* one L shaped ship with height 3 and width 2 (LShip)
-* one square ship with height 2 and width 2 (SquareShip)
-* two long ships with height 4 and width 1 (LongShip)
-*/
-function generateFleet(){
-	var fleet = [
-	new Ship('LShip', "Elle"), 
-	new Ship('SquareShip', "Quadratum"),
-	new Ship('LongShip', "Thing One"),
-	new Ship('LongShip', "Thing Two")
-	];
-
-	return fleet;
 }
 
 // Class to model player
@@ -512,8 +513,6 @@ class Ship {
 		* 3. LongShip
 		*/
 		this.type = type;
-		this.originRow = -1;
-		this.originCol = -1;
 		this.alive = true;
 		this.tiles = [];
 		this.name = name;
