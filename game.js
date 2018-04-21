@@ -7,44 +7,40 @@ const _black = '#000000';
 const _red = '#FF0000';
 const _grey = '#9B9FB0';
 
-// Variables to define the game board
-var rows = 8;
-var cols = 8;
-var targetTileSize = 50;
-var positionTileSize = 20;
-
 // Variables defining players and game state
 var game;
 
 //DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
-var feedbackConsole = document.getElementById("systemFeedback");
 var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
 // Initialize new game
-function startGame(){
+function loadGame(){
 	game = new Game();
 	passToNextPlayerBtn.disabled = true;
 
-	// Set players' targetBoard layouts equal to opponent's positionBoard
-	game.player1.generateTarget(game.player2);
-	game.player2.generateTarget(game.player1);
+	// Clear console and prompt player for action
+	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
 
 	// Populate DOM for game boards and update view
-	buildBoardContainers();
+	buildBoardContainers(8, 8, 50, 20);
 	updateView();
-
-	// Clear console and prompt player for action
-	feedbackConsole.innerHTML = '';
-	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
 
 }
 
 // Write message to system feedback console
-function writeToConsole(message){
+function writeToConsole(message, clearConsole){
+	var feedbackConsole = document.getElementById("systemFeedback");
 	var feedback = "> " + message;
 	var paragraph = document.createElement("p");
+
+	// Clear console if necessary
+	if (clearConsole){
+		feedbackConsole.innerHTML = '';
+	}
+
+	// Write given message to console
 	paragraph.textContent += feedback;
 	feedbackConsole.appendChild(paragraph);
 
@@ -52,8 +48,8 @@ function writeToConsole(message){
 	feedbackConsole.scrollTop = feedbackConsole.scrollHeight;
 }
 
-// Updates what the player sees on the screen to reflect game play
-function buildBoardContainers(){
+// Updates DOM to display player's game boards
+function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
 	// Make the grids columns and rows
 	for (let i = 0; i < cols; i++) {
 		for (let j = 0; j < rows; j++) {
@@ -173,8 +169,7 @@ function nextTurn(){
 	passToNextPlayerBtn.disabled = true;
 
 	// Clear console and prompt player for action
-	feedbackConsole.innerHTML = '';
-	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
+	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
 	// Cover board until next player is ready
 	boardToggle();
@@ -462,6 +457,10 @@ class Game {
 		this.player2 = new Player('Player 2');
 		this.currentPlayer = this.player1;
 		this.gameOver = false; 
+
+		// Set players' targetBoard layouts equal to opponent's positionBoard
+		this.player1.generateTarget(this.player2);
+		this.player2.generateTarget(this.player1);
 	}
 
 	checkGameOver(){
