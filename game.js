@@ -10,42 +10,39 @@ const _grey = '#9B9FB0';
 // Variables defining players and game state
 var game;
 
-//DOM elements
+// DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
 var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
+// Add event listener for shot fired
+targetBoardContainer.addEventListener("click", fireShot, false);
+
 // Initialize new game
-function loadGame(){
-	game = new Game();
-	passToNextPlayerBtn.disabled = true;
+function loadGame(savedGame){
+	//TODO deal with saved game state
+	//if (savedGame){
+		//game = sessionStorage.getItem(savedGame);
+	//} else {
+		game = new Game();
 
-	// Clear console and prompt player for action
-	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...");
+		// Clear console and prompt player for action
+		writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
-	// Populate DOM for game boards and update view
+		passToNextPlayerBtn.disabled = true;
+	//}
+
+	/*
+	* Populate DOM for game boards and update view.
+	* buildBoardContainers asks for the following parameters (in order):
+	* number of rows on board
+	* number of colums on board
+	* size of target board tiles (should match value in css)
+	* size of position board tiles (should match value in css)
+	*/
 	buildBoardContainers(8, 8, 50, 20);
 	updateView();
 
-}
-
-// Write message to system feedback console
-function writeToConsole(message, clearConsole){
-	var feedbackConsole = document.getElementById("systemFeedback");
-	var feedback = "> " + message;
-	var paragraph = document.createElement("p");
-
-	// Clear console if necessary
-	if (clearConsole){
-		feedbackConsole.innerHTML = '';
-	}
-
-	// Write given message to console
-	paragraph.textContent += feedback;
-	feedbackConsole.appendChild(paragraph);
-
-	// Set focus to bottom of scrollable console
-	feedbackConsole.scrollTop = feedbackConsole.scrollHeight;
 }
 
 // Updates DOM to display player's game boards
@@ -84,7 +81,7 @@ function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
 	}
 }
 
-// Updates the DOM to display game over stats
+//TODO (MAKE THIS PRETTIER) Updates the DOM to display game over stats
 function updateStats(stats){
 	// Clear content
 	while (stats.firstChild) {
@@ -159,11 +156,8 @@ function boardToggle(){
 
 // When player is done their turn and clicks the button to allow the next plater to start
 function nextTurn(){
-	if (game.currentPlayer == game.player1){
-		game.currentPlayer = game.player2;
-	} else {
-		game.currentPlayer = game.player1;
-	}
+
+	game.endTurn();
 	$('#playerSummon').text(game.currentPlayer.name + ' ready?');
 
 	passToNextPlayerBtn.disabled = true;
@@ -220,13 +214,10 @@ function updateView(){
 
 }
 
-// Add event listener for shot fired
-targetBoardContainer.addEventListener("click", fireShot, false);
-
 // Handle player's move (shot fired on targetBoard)
 function fireShot(e) {
 	// Validate that the currentPlayer is allowed to shoot and has not already executed a valid shot
-	if (passToNextPlayerBtn.disabled == true){
+	if (passToNextPlayerBtn.disabled){
 
 		// If item clicked (e.target) is not the parent element on which the event listener was set (e.currentTarget)
 		if (e.target !== e.currentTarget) {
@@ -234,13 +225,6 @@ function fireShot(e) {
 			var row = e.target.id.substring(1,2);
 			var col = e.target.id.substring(2,3);
 			var shot = game.currentPlayer.targetBoard[row][col];
-			var opponent;
-
-			if (game.currentPlayer == game.player1){
-				opponent = game.player2;
-			} else {
-				opponent = game.player1;
-			}
 
 			/*
 			* Handle the possible cases
@@ -248,39 +232,12 @@ function fireShot(e) {
 			* 2. User clicked on square with ship hidden: square turns red
 			* 3. User clicked on square already shot at: do not change turns
 			*/
-			if (shot == 0) {
-				// Miss
-				game.currentPlayer.shotsFired++;
-				e.target.style.background = _grey;
-				game.currentPlayer.targetBoard[row][col] = 3;
-				writeToConsole("Miss");
-				passToNextPlayerBtn.disabled = false;
-			} else if (shot == 1){
-				// Hit
-				game.currentPlayer.shotsFired++;
-				e.target.style.background = _red;
-				game.currentPlayer.targetBoard[row][col] = 2;
-				writeToConsole("Hit");
-				passToNextPlayerBtn.disabled = false;
-
-				//Change ship's alive state to false if necessary
-				for (let i = 0; i < opponent.fleet.length; i++){
-					for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
-						if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
-							// Found ship that was hit
-							opponent.fleet[i].checkLife(game.currentPlayer.targetBoard);
-							if (!opponent.fleet[i].alive) {
-								writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
-									+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
-							}
-						}
-					}
-				}
-
-				// Check if game has ended. If it has call function to show end game. 
-				if (game.checkGameOver()) { boardToggle(); }
-
+			if ((shot == 0) || (shot == 1)) {
+				// Valid shot
+				var target = e.target;
+				validShot(shot, target, row, col);
 			} else {
+				// Invalid shot
 				writeToConsole("Stop wasting missiles, you already fired there...");
 			}
 		}
@@ -289,6 +246,83 @@ function fireShot(e) {
 		writeToConsole("You have already fired. Pass the game to your opponent by clicking the End Turn button.");
 	}
 	e.stopPropagation();
+}
+
+// Handles the player's shot if it was valid
+function validShot(shot, target, row, col){
+	var message;
+
+	game.currentPlayer.shotsFired++;
+	passToNextPlayerBtn.disabled = false;
+
+	if (shot){
+		// Hit
+		message = "Hit";
+		target.style.background = _red;
+		game.currentPlayer.targetBoard[row][col] = 2;
+
+		// Check if ship is sunk and if game is over
+		manageHit(row, col);
+
+	} else {
+		// Miss
+		target.style.background = _grey;
+		game.currentPlayer.targetBoard[row][col] = 3;
+		message = "Miss";
+	}
+
+	writeToConsole(message);
+
+}
+
+// Handles case where player has hit opponenet's ship
+function manageHit(row, col){
+	var opponent;
+
+	if (game.currentPlayer == game.player1){
+		opponent = game.player2;
+	} else {
+		opponent = game.player1;
+	}
+
+	//Change ship's alive state to false if necessary
+	for (let i = 0; i < opponent.fleet.length; i++){
+		for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
+			if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
+				// Found ship that was hit
+				opponent.fleet[i].checkLife(game.currentPlayer.targetBoard);
+
+				if (!opponent.fleet[i].alive) {
+					writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
+						+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
+				}
+			}
+		}
+	}
+
+	// Check if game has ended. If it has call function to show end game. 
+	if (game.checkGameOver()) { boardToggle(); }
+}
+
+// Write message to system feedback console
+function writeToConsole(message, clearConsole){
+	var feedbackConsole = document.getElementById("systemFeedback");
+	var feedback = "> " + message;
+	var paragraph = document.createElement("p");
+
+	// Clear console if necessary
+	if (clearConsole){
+		while (feedbackConsole.firstChild) {
+	    	feedbackConsole.removeChild(feedbackConsole.firstChild);
+		}
+	}
+
+	// Write given message to console
+	paragraph.textContent += feedback;
+	feedbackConsole.appendChild(paragraph);
+
+	// Set focus to bottom of scrollable console
+	feedbackConsole.scrollTop = feedbackConsole.scrollHeight;
 }
 
 /************** Functions used for game build **************/
@@ -456,7 +490,7 @@ class Game {
 		this.player1 = new Player('Player 1');
 		this.player2 = new Player('Player 2');
 		this.currentPlayer = this.player1;
-		this.gameOver = false; 
+		this.gameOver = false;
 
 		// Set players' targetBoard layouts equal to opponent's positionBoard
 		this.player1.generateTarget(this.player2);
@@ -469,6 +503,14 @@ class Game {
 		} 
 
 		return this.gameOver;
+	}
+
+	endTurn(){
+		if (this.currentPlayer == this.player1){
+			this.currentPlayer = this.player2;
+		} else {
+			this.currentPlayer = this.player1;
+		}
 	}
 
 }
