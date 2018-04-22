@@ -11,10 +11,6 @@ body {
 	display: none;
 }
 
-#stats {
-	display: none;
-}
-
 #cover {
 	display: none;
 }
@@ -31,16 +27,6 @@ body {
 	margin: auto;
 }
 
-.btn {
-
-	padding: 10px 25px; //Use padding as per your requirement
-	background-color: #392DFF; //use background color that you want
-	color: #fff; //change text color
-	border-radius: 4px; //use this line if you want rounded corner
-	cursor: pointer;
-
-}
-
 .btn-primary {
 	min-width: 200px;
 	background-color: #392DFF;
@@ -54,11 +40,11 @@ body {
 /* System feedback console that talks to user once they have taken a turn */
 #consoleCol {
 	background-color: #000000;
+	font-family: 'Source Code Pro', monospace;
 }
 
 #consoleCol p{
 	color: #52B50F;
-	font-family: 'Source Code Pro', monospace;
 }
 
 #systemFeedback {
@@ -66,7 +52,6 @@ body {
 	height: 200px;
 	color: #52B50F;
 	padding: 8px;
-	font-family: 'Source Code Pro', monospace;
 }
 
 /****************************************** TODO Review this section of code *************************************/
