@@ -8,9 +8,9 @@
 	</head>
 
 	<!-- On page load run startGame function --> 
-	<body onload="loadGame()">
+	<body>
 
-	<!-- Cover is used to hide game play as player's are changing turns --> 
+		<!-- Cover is used to hide game play as player's are changing turns --> 
 		<div id="cover" >
 
 			<!-- Header display's basic game information --> 
@@ -36,10 +36,10 @@
 
 			</div>
 
-			<!-- Controls stores the buttons available to the player -->
+			<!-- Controls stores the buttons available to the player when board is showing-->
 			<div id='controls'>
 				<a href="index.html"><button type="button" class="btn btn-primary">Quit Game</button></a>
-				<button type="button" class="btn btn-primary" id="nextPlayer" onclick="nextTurn()">End Turn</button>
+				<button type="button" class="btn btn-primary" id="nextPlayer">End Turn</button>
 		  	</div>
 
 	  	</div>
@@ -48,8 +48,7 @@
 	  	<div id="coverControls">
 	  		<h2 id="playerSummon"></h2>
 	  		<div id="stats"></div>
-	  		<button id="turnControl" type="button" class="btn btn-primary" onclick="showGame()">Start Turn</button>
-	  		<button id="restartControl" type="button" class="btn btn-primary" onclick="startGame()">New Game</button>
+	  		<button id="turnControl" type="button" class="btn btn-primary">Start Turn</button>
 	  	</div>
 		
 		<!-- Import JQuery and game script -->

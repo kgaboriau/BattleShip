@@ -1,3 +1,5 @@
+//IIFE
+(function mainIIFE() {
 // Declare strict mode
 "use strict";
 
@@ -9,13 +11,6 @@ const _grey = '#9B9FB0';
 
 // Variables defining players and game state
 var game;
-
-// DOM elements
-var targetBoardContainer = document.getElementById("targetboard");
-var positionBoardContainer = document.getElementById("positionboard");
-
-// Add event listener for shot fired
-targetBoardContainer.addEventListener("click", fireShot, false);
 
 // Initialize new game
 function loadGame(savedGame){
@@ -64,19 +59,6 @@ function updateStats(stats){
 
 }
 
-/* Called when user click's start turn and is ready to fire */
-function showGame(){
-	var cover = document.getElementById("cover");
-	var coverControls = document.getElementById("coverControls");
-
-	// Show game board
-	cover.style.display = 'block';
-	coverControls.style.display = 'none';
-
-	// Show current player JQuery
-	$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
-}
-
 /*
 * This function takes care of updateing the screen depending on the game state.
 * It will need to be called when either the current player is changed, the game has ended, 
@@ -86,10 +68,10 @@ function updateView(){
 	// DOM optional controls
 	var cover = document.getElementById("cover");
 	var coverControls = document.getElementById("coverControls");
-	var restartControl = document.getElementById('restartControl');
 	var turnControl = document.getElementById('turnControl');
 	var stats = document.getElementById("stats");
 	var passToNextPlayerBtn = document.getElementById("nextPlayer");
+	var positionBoardContainer = document.getElementById("positionboard");
 
 	// Check which state the game is in
 	if (game.gameOver){
@@ -101,7 +83,6 @@ function updateView(){
 		// Hide game board and show end stats
 		cover.style.display = 'none';
 		coverControls.style.display = 'block';
-		restartControl.style.display = 'block';
 		turnControl.style.display = 'none';
 		stats.style.display = 'block';
 
@@ -133,7 +114,6 @@ function updateView(){
 			// Hide game board
 			cover.style.display = 'none';
 			coverControls.style.display = 'block';
-			restartControl.style.display = 'none';
 
 			// Disable button to end turn
 			passToNextPlayerBtn.disabled = true;
@@ -177,17 +157,54 @@ function updateView(){
 
 }
 
-// When player is done their turn and clicks the button to allow the next plater to start
-function nextTurn(){
+// Write message to system feedback console
+function writeToConsole(message, clearConsole){
+	var feedbackConsole = document.getElementById("systemFeedback");
+	var feedback = "> " + message;
+	var paragraph = document.createElement("p");
 
-	game.endTurn();
+	// Clear console if necessary
+	if (clearConsole){
+		while (feedbackConsole.firstChild) {
+	    	feedbackConsole.removeChild(feedbackConsole.firstChild);
+		}
+	}
 
-	// Clear console and prompt player for action
-	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
+	// Write given message to console
+	paragraph.textContent += feedback;
+	feedbackConsole.appendChild(paragraph);
 
-	// Update screen
-	updateView();
+	// Set focus to bottom of scrollable console
+	feedbackConsole.scrollTop = feedbackConsole.scrollHeight;
 }
+
+/************** Event Listeners and corresponding functions **************/
+
+// DOM elements requiring listeners
+var targetBoardContainer = document.getElementById("targetboard");
+var endTurnBtn = document.getElementById("nextPlayer");
+var startTurnBtn = document.getElementById("turnControl");
+
+// Event Listener for target board
+targetBoardContainer.addEventListener("click", fireShot, false);
+
+// Event listener for end turn button
+endTurnBtn.addEventListener("click", function (){
+	game.endTurn();
+	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
+	updateView();
+});
+
+// Event listener for start turn button
+startTurnBtn.addEventListener("click", function (){
+	var cover = document.getElementById("cover");
+	var coverControls = document.getElementById("coverControls");
+	// Show game board
+	cover.style.display = 'block';
+	coverControls.style.display = 'none';
+	// Show current player JQuery
+	$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
+});
 
 // Handle player's move (shot fired on targetBoard)
 function fireShot(e) {
@@ -214,7 +231,7 @@ function fireShot(e) {
 
 				// Update Page to reflect action
 				updateView();
-				
+
 			} else {
 				// Invalid shot
 				writeToConsole("Stop wasting missiles, you already fired there...");
@@ -279,27 +296,6 @@ function manageHit(row, col){
 			}
 		}
 	}
-}
-
-// Write message to system feedback console
-function writeToConsole(message, clearConsole){
-	var feedbackConsole = document.getElementById("systemFeedback");
-	var feedback = "> " + message;
-	var paragraph = document.createElement("p");
-
-	// Clear console if necessary
-	if (clearConsole){
-		while (feedbackConsole.firstChild) {
-	    	feedbackConsole.removeChild(feedbackConsole.firstChild);
-		}
-	}
-
-	// Write given message to console
-	paragraph.textContent += feedback;
-	feedbackConsole.appendChild(paragraph);
-
-	// Set focus to bottom of scrollable console
-	feedbackConsole.scrollTop = feedbackConsole.scrollHeight;
 }
 
 /************** Functions used for game build **************/
@@ -461,6 +457,8 @@ function placeShip(row, col, ship, board){
 
 // Updates DOM to display player's game boards
 function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
+	var positionBoardContainer = document.getElementById("positionboard");
+	
 	// Make the grids columns and rows
 	for (let i = 0; i < cols; i++) {
 		for (let j = 0; j < rows; j++) {
@@ -588,3 +586,7 @@ class Ship {
 	}
 
 }
+
+loadGame();
+// End IIFE
+}) ();
