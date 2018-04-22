@@ -13,7 +13,6 @@ var game;
 // DOM elements
 var targetBoardContainer = document.getElementById("targetboard");
 var positionBoardContainer = document.getElementById("positionboard");
-var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
 // Add event listener for shot fired
 targetBoardContainer.addEventListener("click", fireShot, false);
@@ -29,7 +28,6 @@ function loadGame(savedGame){
 		// Clear console and prompt player for action
 		writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
-		passToNextPlayerBtn.disabled = true;
 	//}
 
 	/*
@@ -43,42 +41,6 @@ function loadGame(savedGame){
 	buildBoardContainers(8, 8, 50, 20);
 	updateView();
 
-}
-
-// Updates DOM to display player's game boards
-function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
-	// Make the grids columns and rows
-	for (let i = 0; i < cols; i++) {
-		for (let j = 0; j < rows; j++) {
-			
-			// create a new div HTML element for each grid square and make it the right size
-			var tile = document.createElement("div");
-			var staticTile = document.createElement("div");
-			targetBoardContainer.appendChild(tile);
-			positionBoardContainer.appendChild(staticTile);
-
-	    	// give each div element a unique id based on its row and column, like "s00"
-			tile.id = 't' + j + i;	
-			staticTile.id = 's' + j + i;
-			if (game.currentPlayer.positionBoard[j][i] == 0){
-				staticTile.style.background = _grey;
-			} else {
-				staticTile.style.background = _black;
-			}
-			
-			// set each grid square's coordinates: multiples of the current row or column number
-			var topTarget = j * targetTileSize;
-			var leftTarget = i * targetTileSize;	
-			var topPosition	= j * positionTileSize;
-			var leftPosition = i * positionTileSize;
-			
-			// use CSS absolute positioning to place each grid square on the page
-			tile.style.top = topTarget + 'px';
-			tile.style.left = leftTarget + 'px';	
-			staticTile.style.top = topPosition + 'px';
-			staticTile.style.left = leftPosition + 'px';					
-		}
-	}
 }
 
 //TODO (MAKE THIS PRETTIER) Updates the DOM to display game over stats
@@ -102,26 +64,46 @@ function updateStats(stats){
 
 }
 
-// Changes screen visibility to hide/show board/cover screens
-function boardToggle(){
+/* Called when user click's start turn and is ready to fire */
+function showGame(){
+	var cover = document.getElementById("cover");
+	var coverControls = document.getElementById("coverControls");
+
+	// Show game board
+	cover.style.display = 'block';
+	coverControls.style.display = 'none';
+
+	// Show current player JQuery
+	$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
+}
+
+/*
+* This function takes care of updateing the screen depending on the game state.
+* It will need to be called when either the current player is changed, the game has ended, 
+* or a player has started their turn.
+*/
+function updateView(){
 	// DOM optional controls
 	var cover = document.getElementById("cover");
 	var coverControls = document.getElementById("coverControls");
 	var restartControl = document.getElementById('restartControl');
 	var turnControl = document.getElementById('turnControl');
 	var stats = document.getElementById("stats");
+	var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
-	// If game is over show game end screen else change of turn
+	// Check which state the game is in
 	if (game.gameOver){
+		// Game is over
+
+		// Update stats to display
+		updateStats(stats);
+
 		// Hide game board and show end stats
 		cover.style.display = 'none';
 		coverControls.style.display = 'block';
 		restartControl.style.display = 'block';
 		turnControl.style.display = 'none';
 		stats.style.display = 'block';
-
-		// Update stats to display
-		updateStats(stats);
 
 		// Tell player's who won
 		var winner;
@@ -136,88 +118,81 @@ function boardToggle(){
 		$('#playerSummon').text(winner.name + ' won!');
 
 	} else {
+		// Hide end stats
 		stats.style.display = 'none';
 
-		// Player has handed turn over
-		if (cover.style.display == 'none'){
-			// Show game board
-			cover.style.display = 'block';
-			coverControls.style.display = 'none';
+		// Check if cover should be shown or boards should be shown
+		if (game.shotFired){
+			// Shot was fired, waiting for current player to end turn
+
+			// Enable button to end turn
+			passToNextPlayerBtn.disabled = false;
+
 		} else {
+			// Current player ended their turn, waiting for next player to start
 			// Hide game board
 			cover.style.display = 'none';
 			coverControls.style.display = 'block';
 			restartControl.style.display = 'none';
+
+			// Disable button to end turn
+			passToNextPlayerBtn.disabled = true;
+
+			// Show next player JQuery
+			$('#playerSummon').text(game.currentPlayer.name + ' ready?');
+
+			// Iterate over two game boards and update their appearance
+			var children = positionBoardContainer.childNodes;
+			var childID = null;
+			var row = null;
+			var col = null;
+			for (let i = 0; i < children.length; i++){
+				childID = children[i].getAttribute('id');
+				row = childID.substring(1,2);
+				col = childID.substring(2, 3);
+
+				if (game.currentPlayer.positionBoard[row][col] == 1){
+					children[i].style.background = _black;
+				} else {
+					children[i].style.background = _grey;
+				}
+			}
+
+			children = targetBoardContainer.childNodes;
+			for (let i = 0; i < children.length; i++){
+				childID = children[i].getAttribute('id');
+				row = childID.substring(1,2);
+				col = childID.substring(2, 3);
+
+				if (game.currentPlayer.targetBoard[row][col] == 2){
+					children[i].style.background = _red;
+				} else if (game.currentPlayer.targetBoard[row][col] == 3) {
+					children[i].style.background = _grey;
+				} else {
+					children[i].style.background = _blue;
+				}
+			}
 		}
 	}
-	
-	
+
 }
 
 // When player is done their turn and clicks the button to allow the next plater to start
 function nextTurn(){
 
 	game.endTurn();
-	$('#playerSummon').text(game.currentPlayer.name + ' ready?');
-
-	passToNextPlayerBtn.disabled = true;
 
 	// Clear console and prompt player for action
 	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
-	// Cover board until next player is ready
-	boardToggle();
-
+	// Update screen
 	updateView();
-}
-
-/*
-* This function takes care of updateing the screen depending on the game state.
-* It will need to be called when either the current player is changed, the game has ended, 
-* or a player has started their turn.
-*/
-function updateView(){
-	// Change current player on display using JQuery
-	$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
-	
-	// Iterate over two game boards and update their appearance
-	var children = positionBoardContainer.childNodes;
-	var childID = null;
-	var row = null;
-	var col = null;
-	for (let i = 0; i < children.length; i++){
-		childID = children[i].getAttribute('id');
-		row = childID.substring(1,2);
-		col = childID.substring(2, 3);
-
-		if (game.currentPlayer.positionBoard[row][col] == 1){
-			children[i].style.background = _black;
-		} else {
-			children[i].style.background = _grey;
-		}
-	}
-
-	children = targetBoardContainer.childNodes;
-	for (let i = 0; i < children.length; i++){
-		childID = children[i].getAttribute('id');
-		row = childID.substring(1,2);
-		col = childID.substring(2, 3);
-
-		if (game.currentPlayer.targetBoard[row][col] == 2){
-			children[i].style.background = _red;
-		} else if (game.currentPlayer.targetBoard[row][col] == 3) {
-			children[i].style.background = _grey;
-		} else {
-			children[i].style.background = _blue;
-		}
-	}
-
 }
 
 // Handle player's move (shot fired on targetBoard)
 function fireShot(e) {
 	// Validate that the currentPlayer is allowed to shoot and has not already executed a valid shot
-	if (passToNextPlayerBtn.disabled){
+	if (!game.shotFired){
 
 		// If item clicked (e.target) is not the parent element on which the event listener was set (e.currentTarget)
 		if (e.target !== e.currentTarget) {
@@ -236,11 +211,16 @@ function fireShot(e) {
 				// Valid shot
 				var target = e.target;
 				validShot(shot, target, row, col);
+
+				// Update Page to reflect action
+				updateView();
+				
 			} else {
 				// Invalid shot
 				writeToConsole("Stop wasting missiles, you already fired there...");
 			}
 		}
+
 	} else {
 		// Current Player has already executed a valid shot and cannot shoot again
 		writeToConsole("You have already fired. Pass the game to your opponent by clicking the End Turn button.");
@@ -253,7 +233,7 @@ function validShot(shot, target, row, col){
 	var message;
 
 	game.currentPlayer.shotsFired++;
-	passToNextPlayerBtn.disabled = false;
+	game.shotFired = true;
 
 	if (shot){
 		// Hit
@@ -299,9 +279,6 @@ function manageHit(row, col){
 			}
 		}
 	}
-
-	// Check if game has ended. If it has call function to show end game. 
-	if (game.checkGameOver()) { boardToggle(); }
 }
 
 // Write message to system feedback console
@@ -482,6 +459,42 @@ function placeShip(row, col, ship, board){
 	}
 }
 
+// Updates DOM to display player's game boards
+function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
+	// Make the grids columns and rows
+	for (let i = 0; i < cols; i++) {
+		for (let j = 0; j < rows; j++) {
+			
+			// create a new div HTML element for each grid square and make it the right size
+			var tile = document.createElement("div");
+			var staticTile = document.createElement("div");
+			targetBoardContainer.appendChild(tile);
+			positionBoardContainer.appendChild(staticTile);
+
+	    	// give each div element a unique id based on its row and column, like "s00"
+			tile.id = 't' + j + i;	
+			staticTile.id = 's' + j + i;
+			if (game.currentPlayer.positionBoard[j][i] == 0){
+				staticTile.style.background = _grey;
+			} else {
+				staticTile.style.background = _black;
+			}
+			
+			// set each grid square's coordinates: multiples of the current row or column number
+			var topTarget = j * targetTileSize;
+			var leftTarget = i * targetTileSize;	
+			var topPosition	= j * positionTileSize;
+			var leftPosition = i * positionTileSize;
+			
+			// use CSS absolute positioning to place each grid square on the page
+			tile.style.top = topTarget + 'px';
+			tile.style.left = leftTarget + 'px';	
+			staticTile.style.top = topPosition + 'px';
+			staticTile.style.left = leftPosition + 'px';					
+		}
+	}
+}
+
 /************** These are the classes to model the game **************/
 
 // Class to model game instance (used for save state)
@@ -490,6 +503,7 @@ class Game {
 		this.player1 = new Player('Player 1');
 		this.player2 = new Player('Player 2');
 		this.currentPlayer = this.player1;
+		this.shotFired = false;
 		this.gameOver = false;
 
 		// Set players' targetBoard layouts equal to opponent's positionBoard
@@ -511,6 +525,8 @@ class Game {
 		} else {
 			this.currentPlayer = this.player1;
 		}
+
+		this.shotFired = false;
 	}
 
 }
