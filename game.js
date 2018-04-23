@@ -38,6 +38,72 @@ function loadGame(savedGame){
 
 }
 
+/*
+* This function takes care of updateing the screen depending on the game state.
+* It will need to be called when either the current player is changed, the game has ended, 
+* or a player has started their turn.
+*/
+function updateView(){
+	// DOM optional controls
+	var cover = document.getElementById("cover");
+	var coverControls = document.getElementById("coverControls");
+	var stats = document.getElementById("stats");
+	var passToNextPlayerBtn = document.getElementById("nextPlayer");
+
+	// Check which state the game is in
+	if (game.gameOver){
+		// Game is over
+		GameOver();
+
+	} else {
+		// Hide end stats
+		stats.style.display = 'none';
+
+		// Check if cover should be shown or boards should be shown
+		if (game.shotFired){
+			// Shot was fired, waiting for current player to end turn
+			// Enable button to end turn
+			passToNextPlayerBtn.disabled = false;
+
+		} else {
+			// Current player ended their turn, waiting for next player to start
+			// Hide game board
+			cover.style.display = 'none';
+			coverControls.style.display = 'block';
+
+			// Disable button to end turn
+			passToNextPlayerBtn.disabled = true;
+
+			// Show next player JQuery
+			$('#playerSummon').text(game.currentPlayer.name + ' ready?');
+
+			updateBoards();
+		}
+	}
+
+}
+
+// Function called when game is over
+function GameOver(){
+	var cover = document.getElementById("cover");
+	var coverControls = document.getElementById("coverControls");
+	var turnControl = document.getElementById('turnControl');
+	var stats = document.getElementById("stats");
+
+	// Update stats to display
+	updateStats(stats);
+
+	// Hide game board and show end stats
+	cover.style.display = 'none';
+	coverControls.style.display = 'block';
+	turnControl.style.display = 'none';
+	stats.style.display = 'block';
+
+	// Tell player's who won
+	$('#playerSummon').text(((game.player2.shipsSunk() == game.player2.fleet.length) ?
+	game.player1.name : game.player2.name) + ' won!');
+}
+
 //TODO (MAKE THIS PRETTIER) Updates the DOM to display game over stats
 function updateStats(stats){
 	// Clear content
@@ -59,102 +125,40 @@ function updateStats(stats){
 
 }
 
-/*
-* This function takes care of updateing the screen depending on the game state.
-* It will need to be called when either the current player is changed, the game has ended, 
-* or a player has started their turn.
-*/
-function updateView(){
-	// DOM optional controls
-	var cover = document.getElementById("cover");
-	var coverControls = document.getElementById("coverControls");
-	var turnControl = document.getElementById('turnControl');
-	var stats = document.getElementById("stats");
-	var passToNextPlayerBtn = document.getElementById("nextPlayer");
+// Iterate over two game boards and update their appearance
+function updateBoards(){
 	var positionBoardContainer = document.getElementById("positionboard");
+	var children = positionBoardContainer.childNodes;
+	var childID = null;
+	var row = null;
+	var col = null;
+	
+	for (let i = 0; i < children.length; i++){
+		childID = children[i].getAttribute('id');
+		row = childID.substring(1,2);
+		col = childID.substring(2, 3);
 
-	// Check which state the game is in
-	if (game.gameOver){
-		// Game is over
-
-		// Update stats to display
-		updateStats(stats);
-
-		// Hide game board and show end stats
-		cover.style.display = 'none';
-		coverControls.style.display = 'block';
-		turnControl.style.display = 'none';
-		stats.style.display = 'block';
-
-		// Tell player's who won
-		var winner;
-		if(game.player2.shipsSunk() == game.player2.fleet.length){
-			// Player 1 wins
-			winner = game.player1;
-
+		if (game.currentPlayer.positionBoard[row][col] == 1){
+			children[i].style.background = _black;
 		} else {
-			// Player 2 wins
-			winner = game.player2;
-		}
-		$('#playerSummon').text(winner.name + ' won!');
-
-	} else {
-		// Hide end stats
-		stats.style.display = 'none';
-
-		// Check if cover should be shown or boards should be shown
-		if (game.shotFired){
-			// Shot was fired, waiting for current player to end turn
-
-			// Enable button to end turn
-			passToNextPlayerBtn.disabled = false;
-
-		} else {
-			// Current player ended their turn, waiting for next player to start
-			// Hide game board
-			cover.style.display = 'none';
-			coverControls.style.display = 'block';
-
-			// Disable button to end turn
-			passToNextPlayerBtn.disabled = true;
-
-			// Show next player JQuery
-			$('#playerSummon').text(game.currentPlayer.name + ' ready?');
-
-			// Iterate over two game boards and update their appearance
-			var children = positionBoardContainer.childNodes;
-			var childID = null;
-			var row = null;
-			var col = null;
-			for (let i = 0; i < children.length; i++){
-				childID = children[i].getAttribute('id');
-				row = childID.substring(1,2);
-				col = childID.substring(2, 3);
-
-				if (game.currentPlayer.positionBoard[row][col] == 1){
-					children[i].style.background = _black;
-				} else {
-					children[i].style.background = _grey;
-				}
-			}
-
-			children = targetBoardContainer.childNodes;
-			for (let i = 0; i < children.length; i++){
-				childID = children[i].getAttribute('id');
-				row = childID.substring(1,2);
-				col = childID.substring(2, 3);
-
-				if (game.currentPlayer.targetBoard[row][col] == 2){
-					children[i].style.background = _red;
-				} else if (game.currentPlayer.targetBoard[row][col] == 3) {
-					children[i].style.background = _grey;
-				} else {
-					children[i].style.background = _blue;
-				}
-			}
+			children[i].style.background = _grey;
 		}
 	}
 
+	children = targetBoardContainer.childNodes;
+	for (let i = 0; i < children.length; i++){
+		childID = children[i].getAttribute('id');
+		row = childID.substring(1,2);
+		col = childID.substring(2, 3);
+
+		if (game.currentPlayer.targetBoard[row][col] == 2){
+			children[i].style.background = _red;
+		} else if (game.currentPlayer.targetBoard[row][col] == 3) {
+			children[i].style.background = _grey;
+		} else {
+			children[i].style.background = _blue;
+		}
+	}
 }
 
 // Write message to system feedback console
