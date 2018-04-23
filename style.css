@@ -4,6 +4,7 @@ body {
     padding: 10px;
     width: 80%;
     max-width: 1000px;
+    font-family: 'Play', sans-serif;
 }
 
 /* cover features for changing turn */
@@ -17,8 +18,9 @@ body {
 
 /* min dimensions required for dynamic allocation of game boards */
 .col {
-	width: 420px;
+	min-width: 420px;
 	height: 430px;
+	max-width: 430px;
 	display: block;
 	background-color: #000000;
 }
