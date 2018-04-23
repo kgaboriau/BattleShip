@@ -118,8 +118,8 @@ function updateStats(stats){
 	stats.appendChild(shots);
 	stats.appendChild(kills);
 
-	shots.textContent = "Shots Fired:\n" + game.player1.name + ": " + game.player1.shotsFired + "\n" +
-	game.player2.name + ": " + game.player2.shotsFired;
+	shots.textContent = "Shots Fired:\n" + game.player1.name + ": " + game.player1.shotsFired() + "\n" +
+	game.player2.name + ": " + game.player2.shotsFired();
 	kills.textContent = "Ships Sunk:\n" + game.player1.name + ": " + game.player2.shipsSunk() + "\n" + 
 	game.player2.name + ": " + game.player1.shipsSunk();
 
@@ -138,11 +138,8 @@ function updateBoards(){
 		row = childID.substring(1,2);
 		col = childID.substring(2, 3);
 
-		if (game.currentPlayer.positionBoard[row][col] == 1){
-			children[i].style.background = _black;
-		} else {
-			children[i].style.background = _grey;
-		}
+		children[i].style.background = 
+		((game.currentPlayer.positionBoard[row][col] == 1) || (game.currentPlayer.positionBoard[row][col] == 2)) ? _black : _grey;
 	}
 
 	children = targetBoardContainer.childNodes;
@@ -151,9 +148,9 @@ function updateBoards(){
 		row = childID.substring(1,2);
 		col = childID.substring(2, 3);
 
-		if (game.currentPlayer.targetBoard[row][col] == 2){
+		if (game.opponent.positionBoard[row][col] == 2){
 			children[i].style.background = _red;
-		} else if (game.currentPlayer.targetBoard[row][col] == 3) {
+		} else if (game.opponent.positionBoard[row][col] == 3) {
 			children[i].style.background = _grey;
 		} else {
 			children[i].style.background = _blue;
@@ -220,7 +217,7 @@ function fireShot(e) {
 	        // Extract row and column # from the HTML element's id
 			var row = e.target.id.substring(1,2);
 			var col = e.target.id.substring(2,3);
-			var shot = game.currentPlayer.targetBoard[row][col];
+			var shot = game.opponent.positionBoard[row][col];
 
 			/*
 			* Handle the possible cases
@@ -251,16 +248,13 @@ function fireShot(e) {
 
 // Handles the player's shot if it was valid
 function validShot(shot, target, row, col){
-	var message;
-
-	game.currentPlayer.shotsFired++;
 	game.shotFired = true;
 
 	if (shot){
 		// Hit
-		message = "Hit";
+		writeToConsole("Hit");
 		target.style.background = _red;
-		game.currentPlayer.targetBoard[row][col] = 2;
+		game.opponent.positionBoard[row][col] = 2;
 
 		// Check if ship is sunk and if game is over
 		manageHit(row, col);
@@ -268,34 +262,25 @@ function validShot(shot, target, row, col){
 	} else {
 		// Miss
 		target.style.background = _grey;
-		game.currentPlayer.targetBoard[row][col] = 3;
-		message = "Miss";
+		game.opponent.positionBoard[row][col] = 3;
+		writeToConsole("Miss");
 	}
-
-	writeToConsole(message);
 
 }
 
 // Handles case where player has hit opponenet's ship
 function manageHit(row, col){
-	var opponent;
-
-	if (game.currentPlayer == game.player1){
-		opponent = game.player2;
-	} else {
-		opponent = game.player1;
-	}
 
 	//Change ship's alive state to false if necessary
-	for (let i = 0; i < opponent.fleet.length; i++){
-		for (let j = 0; j < opponent.fleet[i].tiles.length; j++){
-			if ((row == opponent.fleet[i].tiles[j][0]) && (col == opponent.fleet[i].tiles[j][1])){
+	for (let i = 0; i < game.opponent.fleet.length; i++){
+		for (let j = 0; j < game.opponent.fleet[i].tiles.length; j++){
+			if ((row == game.opponent.fleet[i].tiles[j][0]) && (col == game.opponent.fleet[i].tiles[j][1])){
 				// Found ship that was hit
-				opponent.fleet[i].checkLife(game.currentPlayer.targetBoard);
+				game.opponent.fleet[i].checkLife(game.opponent.positionBoard);
 
-				if (!opponent.fleet[i].alive) {
-					writeToConsole("You have sunk your opponent's " + opponent.fleet[i].name + " ship. " 
-						+ "Only " + (opponent.fleet.length - opponent.shipsSunk()) + " more to go!");
+				if (!game.opponent.fleet[i].alive) {
+					writeToConsole("You have sunk your opponent's " + game.opponent.fleet[i].name + " ship. " 
+						+ "Only " + (game.opponent.fleet.length - game.opponent.shipsSunk()) + " more to go!");
 				}
 			}
 		}
@@ -511,12 +496,9 @@ class Game {
 		this.player1 = new Player('Player 1');
 		this.player2 = new Player('Player 2');
 		this.currentPlayer = this.player1;
+		this.opponent = this.player2;
 		this.shotFired = false;
 		this.gameOver = false;
-
-		// Set players' targetBoard layouts equal to opponent's positionBoard
-		this.player1.generateTarget(this.player2);
-		this.player2.generateTarget(this.player1);
 	}
 
 	checkGameOver(){
@@ -530,8 +512,10 @@ class Game {
 	endTurn(){
 		if (this.currentPlayer == this.player1){
 			this.currentPlayer = this.player2;
+			this.opponent = this.player1;
 		} else {
 			this.currentPlayer = this.player1;
+			this.opponent = this.player2;
 		}
 
 		this.shotFired = false;
@@ -544,8 +528,6 @@ class Player {
 	constructor(name){
 		this.fleet = generateFleet();
 		this.positionBoard = generateBoard(this.fleet);
-		this.shotsFired = 0;
-		this.targetBoard = null;
 		this.name = name;
 	}
 
@@ -558,13 +540,19 @@ class Player {
 		return sunk;
 	}
 
-	// Sets the player's target board equal to the opponent's position board
-	generateTarget(opponent){
-		this.targetBoard = [];
+	// Count number of shots fired
+	shotsFired(){
+		var counter = 0;
 
-		for (let i = 0; i < opponent.positionBoard.length; i++){
-			this.targetBoard[i] = opponent.positionBoard[i].slice();
+		for (let i = 0; i < game.opponent.positionBoard.length; i++){
+			for (let j = 0; j < game.opponent.positionBoard[i].length; j++){
+				if ((game.opponent.positionBoard[i][j] == 2) || (game.opponent.positionBoard[i][j] == 3)){
+					counter++;
+				}
+			}
 		}
+
+		return counter;
 	}
 }
 
