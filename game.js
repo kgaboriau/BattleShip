@@ -12,18 +12,50 @@ const _grey = '#9B9FB0';
 // Variables defining players and game state
 var game;
 
+// Capture page re-load and save game state
+window.onbeforeunload = function () {
+	var P1Fleet = [];
+	var P2Fleet = [];
+
+	// Stringify ships from both player's fleets
+	for (let i = 0; i < game.player1.fleet.length; i++){
+		P1Fleet.push(JSON.Stringify(game.player1.fleet[i]));
+		P2Fleet.push(JSON.Stringify(game.player2.fleet[i]));
+	}
+	sessionStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
+	sessionStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
+
+	// Stringify remaining player details
+	localStorage.setItem("P1Name", game.player1.name);
+	localStorage.setItem("P2Name", game.player2.name);
+	localStorage.setItem("P1Board", JSON.stringify(game.player1.positionBoard));
+	localStorage.setItem("P2Board", JSON.stringify(game.player2.positionBoard));
+
+	// Stringify game state details
+	localStorage.setItem("GCurrentPlayer", game.currentPlayer.name);
+	localStorage.setItem("GShotFired", JSON.stringify(game.shotFired));
+	//localStorage.setItem("GGameOver", );
+};
+
 // Initialize new game
-function loadGame(savedGame){
-	//TODO deal with saved game state
-	//if (savedGame){
-		//game = sessionStorage.getItem(savedGame);
-	//} else {
+function startGame(){
+	// Check if page was reloaded, if so set game to saved state from sessionStorage
+	if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
+		//var P1 = new Player(localStorage.getItem("P1Name"), localStorage.getItem("P1Fleet"), JSON.parse(localStorage.getItem("P1Board")));
+		//var P2 = new Player(localStorage.getItem("P2Name"), localStorage.getItem("P2Fleet"), JSON.parse(localStorage.getItem("P2Board")));
+		var shotFired = JSON.parse(localStorage.getItem("GShotFired"));
+		//var gameOver = ;
+		//var curP = ;
+
+		//game = new Game(P1, P2, shotFired, gameOver, curP);
+		console.log(shotFired);
+		//console.log(P2);
+	} else {
 		game = new Game();
 
 		// Clear console and prompt player for action
 		writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
-
-	//}
+	}
 
 	/*
 	* Populate DOM for game boards and update view.
@@ -35,6 +67,11 @@ function loadGame(savedGame){
 	*/
 	buildBoardContainers(8, 8, 50, 20);
 	updateView();
+
+}
+
+// Load saved game
+function loadGame(){
 
 }
 
@@ -276,13 +313,27 @@ function manageHit(row, col){
 		for (let j = 0; j < game.opponent.fleet[i].tiles.length; j++){
 			if ((row == game.opponent.fleet[i].tiles[j][0]) && (col == game.opponent.fleet[i].tiles[j][1])){
 				// Found ship that was hit
-				game.opponent.fleet[i].checkLife(game.opponent.positionBoard);
+				checkLife(game.opponent.fleet[i], game.opponent.positionBoard);
 
 				if (!game.opponent.fleet[i].alive) {
 					writeToConsole("You have sunk your opponent's " + game.opponent.fleet[i].name + " ship. " 
 						+ "Only " + (game.opponent.fleet.length - game.opponent.shipsSunk()) + " more to go!");
 				}
 			}
+		}
+	}
+}
+
+
+
+// Checks if all ship tiles are hit. Changes alive attribute accordingly.
+function checkLife(ship, board){
+	for (let i = 0; i < ship.tiles.length; i++){
+		if (board[ship.tiles[i][0]][ship.tiles[i][1]] == 2) {
+			ship.alive = false;
+		} else {
+			ship.alive = true;
+			break;
 		}
 	}
 }
@@ -492,13 +543,13 @@ function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
 
 // Class to model game instance (used for save state)
 class Game {
-	constructor(){
-		this.player1 = new Player('Player 1');
-		this.player2 = new Player('Player 2');
-		this.currentPlayer = this.player1;
-		this.opponent = this.player2;
-		this.shotFired = false;
-		this.gameOver = false;
+	constructor(P1 = new Player('Player 1'), P2 = new Player('Player 2'), shotFired = false, gameOver = false, curP){
+		this.player1 = P1;
+		this.player2 = P2;
+		this.shotFired = shotFired;
+		this.gameOver = gameOver;
+		this.currentPlayer = (curP == this.player2.name) ? this.player2 : this.player1;
+		this.opponent = (this.currentPlayer == this.player1) ? this.player2 : this.player1;
 	}
 
 	checkGameOver(){
@@ -525,9 +576,15 @@ class Game {
 
 // Class to model player
 class Player {
-	constructor(name){
-		this.fleet = generateFleet();
-		this.positionBoard = generateBoard(this.fleet);
+	constructor(name, fleet, posBoard){
+		this.fleet = (fleet) ? function (){
+			var tempFleet = JSON.parse(fleet);
+			for (let i = 0; i < tempFleet.length; i++){
+				var ship = new Ship(JSON.parse(tempFleet[i]));
+				this.fleet.push(ship);
+			}
+		} : generateFleet();
+		this.positionBoard = (posBoard) ? posBoard : generateBoard(this.fleet);
 		this.name = name;
 	}
 
@@ -558,7 +615,7 @@ class Player {
 
 // Class to model ship
 class Ship {
-	constructor(type, name){
+	constructor(type, name, alive = true, tiles = []){
 		/*
 		* Ship can be one of three types:
 		* 1. LShip
@@ -566,25 +623,13 @@ class Ship {
 		* 3. LongShip
 		*/
 		this.type = type;
-		this.alive = true;
-		this.tiles = [];
 		this.name = name;
-	}
-
-	// Checks if all ship tiles are hit. Changes alive attribute accordingly.
-	checkLife(board){
-		for (let i = 0; i < this.tiles.length; i++){
-			if (board[this.tiles[i][0]][this.tiles[i][1]] == 2) {
-				this.alive = false;
-			} else {
-				this.alive = true;
-				break;
-			}
-		}
+		this.alive = alive;
+		this.tiles = tiles;
 	}
 
 }
 
-loadGame();
+startGame();
 // End IIFE
 }) ();
