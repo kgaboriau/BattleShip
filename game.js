@@ -469,6 +469,12 @@ function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
 			targetBoardContainer.appendChild(tile);
 			positionBoardContainer.appendChild(staticTile);
 
+			// Set width and height of tile
+			tile.style.width = targetTileSize + 'px';
+			tile.style.height = targetTileSize + 'px';
+			staticTile.style.width = positionTileSize + 'px';
+			staticTile.style.height = positionTileSize + 'px';
+
 	    	// give each div element a unique id based on its row and column, like "s00"
 			tile.id = 't' + j + i;	
 			staticTile.id = 's' + j + i;

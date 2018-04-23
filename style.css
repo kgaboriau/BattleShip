@@ -19,6 +19,7 @@ body {
 .col {
 	min-width: 420px;
 	min-height: 420px;
+	max-width: 430px;
 	display: block;
 }
 
@@ -38,13 +39,18 @@ body {
 }
 
 /* System feedback console that talks to user once they have taken a turn */
-#consoleCol {
+.col {
 	background-color: #000000;
+	height: 430px;
+}
+
+#consoleCol {
 	font-family: 'Source Code Pro', monospace;
 }
 
 #consoleCol p{
 	color: #52B50F;
+	padding-top: 10px;
 }
 
 #systemFeedback {
@@ -56,7 +62,15 @@ body {
 
 /****************************************** TODO Review this section of code *************************************/
 #targetboard {
+	position: relative;
+	margin-top: 15px;
+}
+
+#positionboard {
 	position:relative;
+	margin-bottom: 20px;
+	width:160px;
+	height:160px;
 
 }
 
@@ -67,17 +81,6 @@ body {
 	box-sizing: border-box;         /* Safari 5.1+, Chrome 10+, Firefox 29+, Opera 7+, IE 8+, Android 4.0+, iOS any */
 	background: #392DFF; /* Old browsers */
 	border: 1px solid #ddd;
-	width:50px;
-	height:50px;
-}
-
-#positionboard {
-	position:relative;
-	margin:0 0 0 0;
-	padding: 10px;
-	width:160px;
-	height:160px;
-
 }
 
 #positionboard div {
@@ -87,6 +90,4 @@ body {
 	box-sizing: border-box;         /* Safari 5.1+, Chrome 10+, Firefox 29+, Opera 7+, IE 8+, Android 4.0+, iOS any */
 	background: #392DFF; /* Old browsers */
 	border: 1px solid #ddd;
-	width:20px;
-	height:20px;
 }
