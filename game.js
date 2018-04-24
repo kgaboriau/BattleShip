@@ -39,7 +39,7 @@ function startGame(){
 		var P1 = new Player(localStorage.getItem("P1Name"), P1Fleet, JSON.parse(localStorage.getItem("P1Board")));
 		var P2 = new Player(localStorage.getItem("P2Name"), P2Fleet, JSON.parse(localStorage.getItem("P2Board")));
 		var shotFired = JSON.parse(localStorage.getItem("GShotFired"));
-		var curP = (localStorage.getItem("GCurrentPlayer") === P2.name) ? P2 : P1; 
+		var curP = localStorage.getItem("GCurrentPlayer"); 
 		var gameOver = JSON.parse(localStorage.getItem("GGameOver"));
 
 		game = new Game(P1, P2, shotFired, gameOver, curP);
@@ -93,6 +93,8 @@ function updateView(){
 			// Hide game board
 			cover.style.display = 'none';
 			coverControls.style.display = 'block';
+
+			writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
 			// Disable button to end turn
 			passToNextPlayerBtn.disabled = true;
@@ -274,7 +276,6 @@ targetBoardContainer.addEventListener("click", fireShot, false);
 // Event listener for end turn button
 endTurnBtn.addEventListener("click", function (){
 	game.endTurn();
-	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 	updateView();
 });
 
@@ -329,9 +330,6 @@ function fireShot(e) {
 			} else {
 				// Invalid shot
 				writeToConsole("Stop wasting missiles, you already fired there...");
-				//TODO this is for testing game over, remove later
-				game.gameOver = true;
-				updateView();
 			}
 		}
 

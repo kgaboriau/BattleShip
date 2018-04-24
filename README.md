@@ -27,6 +27,7 @@ This was my first attempt at a JS application. In fact, this was my first real J
 - The ships cannot be rotated on the grid
 - Grid size will not change (constant 8x8)
 - The game end statistics are only interested in number of ships sunk not names of ships sunk
+- If the browser is refreshed while the game board is visible the console will refresh back to just the game play instruction message
 
 <b>New Skills Aquired:</b> 
 - JS language structure
