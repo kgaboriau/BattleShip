@@ -1,8 +1,8 @@
 
 body {
-    margin: 60px auto;
+    margin: 30px auto;
     padding: 10px;
-    width: 80%;
+    width: 90%;
     max-width: 1000px;
     font-family: 'Play', sans-serif;
 }
@@ -33,11 +33,18 @@ div.controls {
 div.btn-primary {
 	min-width: 200px;
 	background-color: #392DFF;
-	margin: 30px auto;
 }
 
 div.btn-primary:focus :active {
 	outline: none;
+}
+
+div.btn-toolbar {
+	margin: 20px;
+}
+
+div.btn-toolbar a button{
+	margin-right: 20px;
 }
 
 /* System feedback console that talks to user once they have taken a turn */
