@@ -88,3 +88,14 @@ body {
 	background: #392DFF; /* Old browsers */
 	border: 1px solid #ddd;
 }
+
+/* Styling end game stats */
+#stats {
+	text-align: center;
+	border-collapse: collapse;
+}
+
+#stats tr td {
+	padding: 10px;
+	border: 1px solid black;
+}

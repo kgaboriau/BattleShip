@@ -134,27 +134,50 @@ function GameOver(){
 	// Tell player's who won
 	$('#playerSummon').text(((game.player2.shipsSunk() == game.player2.fleet.length) ?
 	game.player1.name : game.player2.name) + ' won!');
+
+	// Create play again button 
+	var anchor = document.createElement("a");
+	var playAgainBtn = document.createElement("button");
+
+	playAgainBtn.setAttribute('type', 'button');
+	playAgainBtn.setAttribute('class', 'btn btn-primary');
+	playAgainBtn.innerHTML = 'Play Again?';
+	anchor.setAttribute('href', 'index.html');
+
+	anchor.appendChild(playAgainBtn);
+	coverControls.appendChild(anchor);
 }
 
-//TODO (MAKE THIS PRETTIER) Updates the DOM to display game over stats
+//Updates the DOM to display game over stats
 function updateStats(stats){
-	// Clear content
-	while (stats.firstChild) {
-    	stats.removeChild(stats.firstChild);
+
+	// Populate stats table with rows and columns
+	for (let i = 0; i < 3; i++){
+		var row = document.createElement("tr");
+		stats.appendChild(row);
+		row.id = 'row' + i;
+
+		for (let j = 0; j < 3; j++){
+			var cell = document.createElement("td");
+			row.appendChild(cell);
+			cell.id = 'cell' + i + j;
+		}
 	}
 
-	// Write new content
-	var shots = document.createElement("p");
-	var kills = document.createElement("p");
+	//var stat1 = document.createElement("h2");
+	//stat1.textContent = "Shots Fired";
+	//document.getElementById("cell01").appendChild(stat1);
 
-	stats.appendChild(shots);
-	stats.appendChild(kills);
-
-	shots.textContent = "Shots Fired:\n" + game.player1.name + ": " + game.player1.shotsFired() + "\n" +
-	game.player2.name + ": " + game.player2.shotsFired();
-	kills.textContent = "Ships Sunk:\n" + game.player1.name + ": " + game.player2.shipsSunk() + "\n" + 
-	game.player2.name + ": " + game.player1.shipsSunk();
-
+	// Write game information to table
+	$('#cell00').text("GAME STATS");
+	$('#cell01').text("Shots Fired");
+	$('#cell02').text("Ships Sunk");
+	$('#cell10').text(game.player1.name);
+	$('#cell11').text(game.player1.shotsFired());
+	$('#cell12').text(game.player2.shipsSunk());
+	$('#cell20').text(game.player2.name);
+	$('#cell21').text(game.player2.shotsFired());
+	$('#cell22').text(game.player1.shipsSunk());
 }
 
 // Iterate over two game boards and update their appearance
@@ -314,6 +337,8 @@ function manageHit(row, col){
 					writeToConsole("You have sunk your opponent's " + game.opponent.fleet[i].name + " ship. " 
 						+ "Only " + (game.opponent.fleet.length - game.opponent.shipsSunk()) + " more to go!");
 				}
+
+				game.checkGameOver();
 			}
 		}
 	}
@@ -551,8 +576,6 @@ class Game {
 		if ((this.player1.shipsSunk() == this.player1.fleet.length) || (this.player2.shipsSunk() == this.player2.fleet.length)) {
 			this.gameOver = true;
 		} 
-
-		return this.gameOver;
 	}
 
 	endTurn(){
