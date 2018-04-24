@@ -68,8 +68,6 @@ function startGame(){
 */
 function updateView(){
 	// DOM optional controls
-	var cover = document.getElementById("cover");
-	var coverControls = document.getElementById("coverControls");
 	var stats = document.getElementById("stats");
 	var passToNextPlayerBtn = document.getElementById("nextPlayer");
 
@@ -85,30 +83,51 @@ function updateView(){
 		// Check if cover should be shown or boards should be shown
 		if (game.shotFired){
 			// Shot was fired, waiting for current player to end turn
+			showGameBoard(true);
+
 			// Enable button to end turn
 			passToNextPlayerBtn.disabled = false;
 
-		} else {
-			// Current player ended their turn, waiting for next player to start
-			// Hide game board
-			cover.style.display = 'none';
-			coverControls.style.display = 'block';
+			$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
 
+		} else {
 			writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
-			// Disable button to end turn
-			passToNextPlayerBtn.disabled = true;
+			// Check if current player has passed their turn to their opponent
+			if (passToNextPlayerBtn.disabled){
+				// Curent player has started turn, however, has not fired a shot yet
+				showGameBoard(true);
 
-			// Show next player JQuery
-			$('#playerSummon').text(game.currentPlayer.name + ' ready?');
+				$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
+			} else {
+				// Current player ended their turn, waiting for next player to start
+				showGameBoard(false);
 
-			updateBoards();
+				// Show next player JQuery
+				$('#playerSummon').text(game.currentPlayer.name + ' ready?');
+			}
 		}
 	}
+
+	updateBoards();
 
 	//Update local storage
 	storeGameState();
 
+}
+
+// Toggles the visibility of the game board and game controls
+function showGameBoard(show){
+	var cover = document.getElementById("cover");
+	var coverControls = document.getElementById("coverControls");
+
+	if (show){
+		cover.style.display = 'block';
+		coverControls.style.display = 'none';
+ 	} else {
+		cover.style.display = 'none';
+		coverControls.style.display = 'block';
+ 	}
 }
 
 // Saves game state to local storage
@@ -141,7 +160,6 @@ function storeGameState(){
 
 // Function called when game is over
 function GameOver(){
-	var cover = document.getElementById("cover");
 	var coverControls = document.getElementById("coverControls");
 	var turnControl = document.getElementById('turnControl');
 	var stats = document.getElementById("stats");
@@ -150,8 +168,7 @@ function GameOver(){
 	updateStats(stats);
 
 	// Hide game board and show end stats
-	cover.style.display = 'none';
-	coverControls.style.display = 'block';
+	showGameBoard(false);
 	turnControl.style.display = 'none';
 	stats.style.display = 'block';
 
@@ -292,11 +309,13 @@ document.body.onkeyup = function(e){
 
 // Event listener for start turn button
 startTurnBtn.addEventListener("click", function (){
-	var cover = document.getElementById("cover");
-	var coverControls = document.getElementById("coverControls");
-	// Show game board
-	cover.style.display = 'block';
-	coverControls.style.display = 'none';
+	var passToNextPlayerBtn = document.getElementById("nextPlayer");
+
+	showGameBoard(true);
+
+	// Disable button to end turn
+	passToNextPlayerBtn.disabled = true;
+
 	// Show current player JQuery
 	$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
 });
