@@ -10,3 +10,11 @@ Assumptions Made:
 1. The ships cannot be rotated on the grid
 2. Grid size will not change (constant 8x8)
 
+New Skills Learned: 
+1. Using cookies
+2. Importing other js projects from gitHub
+3. Relationship between, js script, DOM, and CSS
+
+If I had more time: 
+1. More focus on UI design
+
