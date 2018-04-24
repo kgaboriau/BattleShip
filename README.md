@@ -21,7 +21,7 @@ This was my first attempt at a JS application. In fact, this was my first real J
 
 
 <b>If I had more time: </b>
-1. More focus on UI design
+1. More focus on UI design (wanted to look into Vue.js)
 2. Read more about Sass
 3. Refactor to allow user input for player names
 4. Adding the ability to design the game\'s fleet would be interesting
