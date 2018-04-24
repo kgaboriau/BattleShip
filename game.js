@@ -295,8 +295,8 @@ function fireShot(e) {
 				// Invalid shot
 				writeToConsole("Stop wasting missiles, you already fired there...");
 				//TODO this is for testing game over, remove later
-				//game.gameOver = true;
-				//updateView();
+				game.gameOver = true;
+				updateView();
 			}
 		}
 
@@ -374,10 +374,10 @@ function checkLife(ship, board){
 */
 function generateFleet(){
 	var fleet = [
-	new Ship('LShip', "Elle"), 
-	new Ship('SquareShip', "Quadratum"),
-	new Ship('LongShip', "Thing One"),
-	new Ship('LongShip', "Thing Two")
+	new Ship('LShip', "Bistromath"), 
+	new Ship('SquareShip', "Heart of Gold"),
+	new Ship('LongShip', "Vogon Constructor One"),
+	new Ship('LongShip', "Vogon Constructor Two")
 	];
 
 	return fleet;
@@ -569,7 +569,7 @@ function buildBoardContainers(rows, cols, targetTileSize, positionTileSize){
 
 // Class to model game instance (used for save state)
 class Game {
-	constructor(P1 = new Player('Player 1'), P2 = new Player('Player 2'), shotFired = false, gameOver = false, curP){
+	constructor(P1 = new Player('Arthur'), P2 = new Player('Trillian'), shotFired = false, gameOver = false, curP){
 		this.player1 = P1;
 		this.player2 = P2;
 		this.shotFired = shotFired;
