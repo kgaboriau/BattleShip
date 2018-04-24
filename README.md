@@ -16,7 +16,7 @@ New Skills Aquired:
 3. Relationship between, JS, DOM, and CSS
 4. Using cookies
 
-If I had more time: 
+<b>If I had more time: </b>
 1. More focus on UI design
 2. Read more about Sass
 3. Refactor to allow user input for player names
