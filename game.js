@@ -42,8 +42,6 @@ function startGame(){
 		var curP = (localStorage.getItem("GCurrentPlayer") === P2.name) ? P2 : P1; 
 		var gameOver = JSON.parse(localStorage.getItem("GGameOver"));
 
-		console.log(P1);
-		console.log(P2);
 		game = new Game(P1, P2, shotFired, gameOver, curP);
 	}
 
@@ -279,6 +277,17 @@ endTurnBtn.addEventListener("click", function (){
 	writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 	updateView();
 });
+
+// Easter Egg for Hitchhiker's Guide to the Galaxy quote
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+        // Space Bar pressed
+        var quotes = ["Always know where your towel is.", 
+        "42, the answer to the ultimate question of life, the universe, and everything.", 
+        "So long and thanks for all the fish."];
+        writeToConsole(quotes[getRandomInt(quotes.length)]);
+    }
+}
 
 // Event listener for start turn button
 startTurnBtn.addEventListener("click", function (){
