@@ -36,6 +36,7 @@ This was my first attempt at a JS application. In fact, this was my first real J
 
 
 <b>If I had more time: </b>
+- Look into libraries and frameworks available for JS
 - More focus on UI design (wanted to look into Vue.js)
 - Read more about Sass
 - Refactor to allow user input for player names

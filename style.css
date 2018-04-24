@@ -17,7 +17,7 @@ body {
 }
 
 /* min dimensions required for dynamic allocation of game boards */
-.col {
+div.col {
 	min-width: 420px;
 	height: 430px;
 	max-width: 430px;
@@ -26,17 +26,17 @@ body {
 }
 
 /* Managing look and feel of buttons */
-.controls {
+div.controls {
 	margin: auto;
 }
 
-.btn-primary {
+div.btn-primary {
 	min-width: 200px;
 	background-color: #392DFF;
 	margin: 30px auto;
 }
 
-.btn-primary:focus :active {
+div.btn-primary:focus :active {
 	outline: none;
 }
 
@@ -93,9 +93,13 @@ body {
 #stats {
 	text-align: center;
 	border-collapse: collapse;
+	font-family: 'Source Code Pro', monospace;
+	color: #52B50F;
+	font-size: 20px;
 }
 
 #stats tr td {
 	padding: 10px;
-	border: 1px solid black;
+	border: 1px solid #9B9FB0;
+	background-color: #000000;
 }

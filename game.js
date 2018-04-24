@@ -12,50 +12,30 @@ const _grey = '#9B9FB0';
 // Variables defining players and game state
 var game;
 
-// Capture page re-load and save game state
-window.onbeforeunload = function () {
-	var P1Fleet = [];
-	var P2Fleet = [];
-
-	// Stringify ships from both player's fleets
-	for (let i = 0; i < game.player1.fleet.length; i++){
-		P1Fleet.push(JSON.Stringify(game.player1.fleet[i]));
-		P2Fleet.push(JSON.Stringify(game.player2.fleet[i]));
-	}
-	localStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
-	localStorage.setItem("P2Fleet", JSON.stringify(P2Fleet));
-
-	// Stringify remaining player details
-	localStorage.setItem("P1Name", game.player1.name);
-	localStorage.setItem("P2Name", game.player2.name);
-	localStorage.setItem("P1Board", JSON.stringify(game.player1.positionBoard));
-	localStorage.setItem("P2Board", JSON.stringify(game.player2.positionBoard));
-
-	// Stringify game state details
-	localStorage.setItem("GCurrentPlayer", game.currentPlayer.name);
-	localStorage.setItem("GShotFired", JSON.stringify(game.shotFired));
-	//localStorage.setItem("GGameOver", );
-};
-
 // Initialize new game
 function startGame(){
-	// Check if page was reloaded, if so set game to saved state from local storage
-	if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
-		//var P1 = new Player(localStorage.getItem("P1Name"), localStorage.getItem("P1Fleet"), JSON.parse(localStorage.getItem("P1Board")));
-		//var P2 = new Player(localStorage.getItem("P2Name"), localStorage.getItem("P2Fleet"), JSON.parse(localStorage.getItem("P2Board")));
-		var test = localStorage.getItem("P1Board");
-		//var gameOver = ;
-		//var curP = ;
+	var quitGameBtn = document.getElementById("quitGameBtn");
 
-		//game = new Game(P1, P2, shotFired, gameOver, curP);
-		console.log(test);
-		//console.log(P2);
-	} else {
+	// Check if page was reloaded, if so set game to saved state from local storage
+	if (localStorage.length === 0) {
 		game = new Game();
 
 		// Clear console and prompt player for action
 		writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
+	} else {
+		var P1 = new Player(localStorage.getItem("P1Name"), localStorage.getItem("P1Fleet"), JSON.parse(localStorage.getItem("P1Board")));
+		var P2 = new Player(localStorage.getItem("P2Name"), localStorage.getItem("P2Fleet"), JSON.parse(localStorage.getItem("P2Board")));
+		var shotFired = JSON.parse(localStorage.getItem("GShotFired"));
+		var curP = (localStorage.getItem("GCurrentPlayer") === P2.name) ? P2 : P1; 
+		var gameOver = JSON.parse(localStorage.getItem("GGameOver"));
+
+		console.log(P1);
+		console.log(P2);
+		game = new Game(P1, P2, shotFired, gameOver, curP);
 	}
+
+	// Clear local storage if the user starts a new game
+	quitGameBtn.onclick = function () { localStorage.clear(); }
 
 	/*
 	* Populate DOM for game boards and update view.
@@ -113,6 +93,34 @@ function updateView(){
 		}
 	}
 
+	//Update local storage
+	storeGameState();
+
+}
+
+// Saves game state to local storage
+function storeGameState(){
+	var P1Fleet = [];
+	var P2Fleet = [];
+
+	// Stringify ships from both player's fleets
+	for (let i = 0; i < game.player1.fleet.length; i++){
+		P1Fleet.push(JSON.Stringify(game.player1.fleet[i]));
+		P2Fleet.push(JSON.Stringify(game.player2.fleet[i]));
+	}
+	localStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
+	localStorage.setItem("P2Fleet", JSON.stringify(P2Fleet));
+
+	// Stringify remaining player details
+	localStorage.setItem("P1Name", game.player1.name);
+	localStorage.setItem("P2Name", game.player2.name);
+	localStorage.setItem("P1Board", JSON.stringify(game.player1.positionBoard));
+	localStorage.setItem("P2Board", JSON.stringify(game.player2.positionBoard));
+
+	// Stringify game state details
+	localStorage.setItem("GCurrentPlayer", game.currentPlayer.name);
+	localStorage.setItem("GShotFired", JSON.stringify(game.shotFired));
+	localStorage.setItem("GGameOver", JSON.stringify(game.gameOver));
 }
 
 // Function called when game is over
@@ -142,7 +150,9 @@ function GameOver(){
 	playAgainBtn.setAttribute('type', 'button');
 	playAgainBtn.setAttribute('class', 'btn btn-primary');
 	playAgainBtn.innerHTML = 'Play Again?';
+	playAgainBtn.onclick = function () { localStorage.clear(); }
 	anchor.setAttribute('href', 'index.html');
+
 
 	anchor.appendChild(playAgainBtn);
 	coverControls.appendChild(anchor);
@@ -600,14 +610,8 @@ class Game {
 
 // Class to model player
 class Player {
-	constructor(name, fleet, posBoard){
-		this.fleet = (fleet) ? function (){
-			var tempFleet = JSON.parse(fleet);
-			for (let i = 0; i < tempFleet.length; i++){
-				var ship = new Ship(JSON.parse(tempFleet[i]));
-				this.fleet.push(ship);
-			}
-		} : generateFleet();
+	constructor(name, fleet = generateFleet(), posBoard){
+		this.fleet = fleet;
 		this.positionBoard = (posBoard) ? posBoard : generateBoard(this.fleet);
 		this.name = name;
 	}
@@ -650,6 +654,16 @@ class Ship {
 		this.name = name;
 		this.alive = alive;
 		this.tiles = tiles;
+
+	}
+
+	toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			alive: this.alive,
+			tiles: this.tiles
+		}
 	}
 
 }
