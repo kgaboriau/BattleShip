@@ -26,6 +26,7 @@ This was my first attempt at a JS application. In fact, this was my first real J
 <b>Assumptions Made:</b> 
 - The ships cannot be rotated on the grid
 - Grid size will not change (constant 8x8)
+- The game end statistics are only interested in number of ships sunk not names of ships sunk
 
 <b>New Skills Aquired:</b> 
 - JS language structure
