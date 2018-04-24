@@ -133,7 +133,7 @@ function GameOver(){
 
 	// Tell player's who won
 	$('#playerSummon').text(((game.player2.shipsSunk() == game.player2.fleet.length) ?
-	game.player1.name : game.player2.name) + ' won!');
+	game.player1.name : game.player2.name) + ' Won!');
 
 	// Create play again button 
 	var anchor = document.createElement("a");
@@ -164,20 +164,23 @@ function updateStats(stats){
 		}
 	}
 
-	//var stat1 = document.createElement("h2");
-	//stat1.textContent = "Shots Fired";
-	//document.getElementById("cell01").appendChild(stat1);
-
-	// Write game information to table
+	// Write static game information to table
 	$('#cell00').text("GAME STATS");
 	$('#cell01').text("Shots Fired");
 	$('#cell02').text("Ships Sunk");
 	$('#cell10').text(game.player1.name);
-	$('#cell11').text(game.player1.shotsFired());
-	$('#cell12').text(game.player2.shipsSunk());
 	$('#cell20').text(game.player2.name);
-	$('#cell21').text(game.player2.shotsFired());
-	$('#cell22').text(game.player1.shipsSunk());
+
+	//TODO testing count up
+	var counters = [['cell11', game.player1.shotsFired()],['cell12', game.player2.shipsSunk()],
+	['cell21', game.player2.shotsFired()],['cell22', game.player1.shipsSunk()]];
+
+	for (let i = 0; i < counters.length; i++){
+		var newCounter = new CountUp(counters[i][0], 0, counters[i][1], 0, 1);
+		if(!newCounter.error){ newCounter.start(); } 
+		else { console.log(newCounter.error); }
+	}
+	
 }
 
 // Iterate over two game boards and update their appearance
@@ -291,6 +294,9 @@ function fireShot(e) {
 			} else {
 				// Invalid shot
 				writeToConsole("Stop wasting missiles, you already fired there...");
+				//TODO this is for testing game over, remove later
+				//game.gameOver = true;
+				//updateView();
 			}
 		}
 
