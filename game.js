@@ -23,8 +23,21 @@ function startGame(){
 		// Clear console and prompt player for action
 		writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 	} else {
-		var P1 = new Player(localStorage.getItem("P1Name"), localStorage.getItem("P1Fleet"), JSON.parse(localStorage.getItem("P1Board")));
-		var P2 = new Player(localStorage.getItem("P2Name"), localStorage.getItem("P2Fleet"), JSON.parse(localStorage.getItem("P2Board")));
+		var P1Fleet = [];
+		var P2Fleet = [];
+		var temp1 = JSON.parse(localStorage.getItem("P1Fleet"));
+		var temp2 = JSON.parse(localStorage.getItem("P2Fleet"));
+
+		// Stringify ships from both player's fleets
+		for (let i = 0; i < temp1.length; i++){
+			var ship1 = JSON.parse(temp1[i]);
+			var ship2 = JSON.parse(temp2[i]);
+			P1Fleet.push(new Ship(ship1.type, ship1.name, ship1.alive, ship1.tiles));
+			P2Fleet.push(new Ship(ship2.type, ship2.name, ship2.alive, ship2.tiles));
+		}
+
+		var P1 = new Player(localStorage.getItem("P1Name"), P1Fleet, JSON.parse(localStorage.getItem("P1Board")));
+		var P2 = new Player(localStorage.getItem("P2Name"), P2Fleet, JSON.parse(localStorage.getItem("P2Board")));
 		var shotFired = JSON.parse(localStorage.getItem("GShotFired"));
 		var curP = (localStorage.getItem("GCurrentPlayer") === P2.name) ? P2 : P1; 
 		var gameOver = JSON.parse(localStorage.getItem("GGameOver"));
@@ -105,8 +118,8 @@ function storeGameState(){
 
 	// Stringify ships from both player's fleets
 	for (let i = 0; i < game.player1.fleet.length; i++){
-		P1Fleet.push(JSON.Stringify(game.player1.fleet[i]));
-		P2Fleet.push(JSON.Stringify(game.player2.fleet[i]));
+		P1Fleet.push(JSON.stringify(game.player1.fleet[i]));
+		P2Fleet.push(JSON.stringify(game.player2.fleet[i]));
 	}
 	localStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
 	localStorage.setItem("P2Fleet", JSON.stringify(P2Fleet));
@@ -121,6 +134,9 @@ function storeGameState(){
 	localStorage.setItem("GCurrentPlayer", game.currentPlayer.name);
 	localStorage.setItem("GShotFired", JSON.stringify(game.shotFired));
 	localStorage.setItem("GGameOver", JSON.stringify(game.gameOver));
+
+	//TODO just a test
+	localStorage.setItem("ship", JSON.stringify(game.player1.fleet[0]));
 }
 
 // Function called when game is over
