@@ -11,10 +11,7 @@ This was my first attempt at a JS application. In fact, this was my first real J
 <b>Game Requirements:</b> 
 - Game state saved on browser refresh
 - Implement standard battleship game play
-- Player\'s fleet consists of 4 ships: 
-1. L shape (3 tall, 2 wide at boot)
-2. block (2x2)
-3. two lines (4x1)
+- Player\'s fleet consists of 4 ships: L shape (3 tall, 2 wide at boot), block (2x2), two lines (4x1)
 - The ships are randomly placed on the grid to start
 - It should have a lobby with a start button to start the game
 - The game is turn based, so player 1 only sees their grid and their shots in player 2's water with their hits and sunk ships. When it is player 2's turn, they see their grid and ships, and player 1's water with their hits and sunk ships
