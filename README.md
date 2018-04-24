@@ -13,7 +13,7 @@ Assumptions Made:
 New Skills Learned: 
 1. Using cookies
 2. Importing other js projects from gitHub
-3. Relationship between, js script, DOM, and CSS
+3. Relationship between, JS, DOM, and CSS
 
 If I had more time: 
 1. More focus on UI design
