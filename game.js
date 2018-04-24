@@ -22,8 +22,8 @@ window.onbeforeunload = function () {
 		P1Fleet.push(JSON.Stringify(game.player1.fleet[i]));
 		P2Fleet.push(JSON.Stringify(game.player2.fleet[i]));
 	}
-	sessionStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
-	sessionStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
+	localStorage.setItem("P1Fleet", JSON.stringify(P1Fleet));
+	localStorage.setItem("P2Fleet", JSON.stringify(P2Fleet));
 
 	// Stringify remaining player details
 	localStorage.setItem("P1Name", game.player1.name);
@@ -39,16 +39,16 @@ window.onbeforeunload = function () {
 
 // Initialize new game
 function startGame(){
-	// Check if page was reloaded, if so set game to saved state from sessionStorage
+	// Check if page was reloaded, if so set game to saved state from local storage
 	if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
 		//var P1 = new Player(localStorage.getItem("P1Name"), localStorage.getItem("P1Fleet"), JSON.parse(localStorage.getItem("P1Board")));
 		//var P2 = new Player(localStorage.getItem("P2Name"), localStorage.getItem("P2Fleet"), JSON.parse(localStorage.getItem("P2Board")));
-		var shotFired = JSON.parse(localStorage.getItem("GShotFired"));
+		var test = localStorage.getItem("P1Board");
 		//var gameOver = ;
 		//var curP = ;
 
 		//game = new Game(P1, P2, shotFired, gameOver, curP);
-		console.log(shotFired);
+		console.log(test);
 		//console.log(P2);
 	} else {
 		game = new Game();
@@ -67,11 +67,6 @@ function startGame(){
 	*/
 	buildBoardContainers(8, 8, 50, 20);
 	updateView();
-
-}
-
-// Load saved game
-function loadGame(){
 
 }
 
