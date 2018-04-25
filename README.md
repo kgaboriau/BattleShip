@@ -45,3 +45,4 @@ This was my first attempt at a JS application. In fact, this was my first real J
 - Would not return to covered screen if user refreshes before firing a shot (debated about best practise on this one)
 - Would copy last child from console for refresh state when shot has been fired.
 - Look further into JS alternatives for switch statements and error handling
+- Would add hit percentage to end statistics.
