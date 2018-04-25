@@ -91,21 +91,14 @@ function updateView(){
 			$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
 
 		} else {
+			// Shot has not been fired re-load confirm turn start screen
+
 			writeToConsole("Fire a shot at your opponent's board by clicking on a blue tile...", true);
 
-			// Check if current player has passed their turn to their opponent
-			if (passToNextPlayerBtn.disabled){
-				// Curent player has started turn, however, has not fired a shot yet
-				showGameBoard(true);
+			showGameBoard(false);
 
-				$('#displayPlayer').text('Current Player is: ' + game.currentPlayer.name);
-			} else {
-				// Current player ended their turn, waiting for next player to start
-				showGameBoard(false);
-
-				// Show next player JQuery
-				$('#playerSummon').text(game.currentPlayer.name + ' ready?');
-			}
+			// Show next player JQuery
+			$('#playerSummon').text(game.currentPlayer.name + ' ready?');
 		}
 	}
 
