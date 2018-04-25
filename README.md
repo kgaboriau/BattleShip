@@ -42,3 +42,6 @@ This was my first attempt at a JS application. In fact, this was my first real J
 - Read more about Sass
 - Refactor to allow user input for player names
 - Adding the ability to design the game\'s fleet would be interesting
+- Would not return to covered screen if user refreshes before firing a shot (debated about best practise on this one)
+- Would copy last child from console for refresh state when shot has been fired.
+- Look further into JS alternatives for switch statements and error handling

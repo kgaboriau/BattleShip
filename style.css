@@ -12,6 +12,10 @@ body {
 	display: none;
 }
 
+#coverControls button {
+	margin: 20px; 
+}
+
 #cover {
 	display: none;
 }

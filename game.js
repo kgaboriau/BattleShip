@@ -153,9 +153,6 @@ function storeGameState(){
 	localStorage.setItem("GCurrentPlayer", game.currentPlayer.name);
 	localStorage.setItem("GShotFired", JSON.stringify(game.shotFired));
 	localStorage.setItem("GGameOver", JSON.stringify(game.gameOver));
-
-	//TODO just a test
-	localStorage.setItem("ship", JSON.stringify(game.player1.fleet[0]));
 }
 
 // Function called when game is over
@@ -214,7 +211,7 @@ function updateStats(stats){
 	$('#cell10').text(game.player1.name);
 	$('#cell20').text(game.player2.name);
 
-	//TODO testing count up
+	// Use CountUp to add animation to end game stats in table
 	var counters = [['cell11', game.player1.shotsFired()],['cell12', game.player2.shipsSunk()],
 	['cell21', game.player2.shotsFired()],['cell22', game.player1.shipsSunk()]];
 
